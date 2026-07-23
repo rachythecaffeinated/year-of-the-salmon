@@ -1,5 +1,8 @@
 # Local Claude Code settings — contains the passphrase in allowlisted commands.
 .claude/
 
+# Personal working notes — not part of the site.
+Goals to add.md
+
 .DS_Store
 node_modules/
