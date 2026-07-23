@@ -308,6 +308,108 @@ footer{
   display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;
 }
 
+/* ---------- people ---------- */
+.people{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.7rem}
+.pcard{
+  display:flex;align-items:center;gap:.75rem;padding:.7rem .8rem;text-align:left;
+  background:rgba(18,56,68,.45);border:1px solid var(--line-soft);cursor:pointer;
+  font:inherit;color:inherit;margin:0;letter-spacing:normal;text-transform:none;
+  transition:border-color .15s,background .15s;
+}
+.pcard:hover{border-color:var(--scale)}
+.pcard.on{border-color:var(--roe)}
+.pmark{
+  width:34px;height:34px;flex-shrink:0;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.82rem;
+  color:#071a21;font-weight:700;
+}
+.pmeta{min-width:0}
+.pmeta b{display:block;font-weight:400;font-size:.98rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pmeta span{
+  font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.58rem;letter-spacing:.1em;
+  color:var(--bone);text-transform:uppercase;font-variant-numeric:tabular-nums;
+}
+
+/* ---------- profile ---------- */
+.phead{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.pavatar{
+  width:54px;height:54px;flex-shrink:0;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1.2rem;
+  color:#071a21;font-weight:700;background:var(--scale);
+}
+.pname{min-width:0}
+.pname h3{font-size:1.6rem;font-weight:400;line-height:1.15}
+.pwhy{
+  font-family:system-ui,-apple-system,sans-serif;font-size:.86rem;color:var(--bone);
+  margin-top:.15rem;max-width:52ch;
+}
+.linkish{
+  margin:.35rem 0 0;padding:0;background:none;border:none;color:var(--scale);
+  font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.6rem;letter-spacing:.14em;
+  text-transform:uppercase;cursor:pointer;text-decoration:underline;
+  text-underline-offset:3px;text-decoration-color:var(--line);
+}
+.linkish:hover{background:none;color:var(--roe)}
+
+.whyedit{margin-top:1.1rem;padding-top:1.1rem;border-top:1px solid var(--line-soft);max-width:34rem}
+.whyedit input{font-family:system-ui,-apple-system,sans-serif}
+.whybtns{display:flex;gap:.5rem}
+.whybtns button{margin-top:.8rem}
+
+.pstats{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:1.3rem;margin-top:1.5rem;padding-top:1.4rem;border-top:1px solid var(--line-soft);
+}
+.pstat .k{
+  font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.58rem;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--scale);
+}
+.pstat .v{font-size:1.55rem;line-height:1.15;margin-top:.22rem;font-variant-numeric:tabular-nums}
+.pstat .v span{font-size:.78rem;color:var(--bone);font-variant-numeric:normal}
+.pstat .sub{
+  font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.57rem;letter-spacing:.08em;
+  color:var(--bone);margin-top:.15rem;font-variant-numeric:tabular-nums;
+}
+
+.spark{margin-top:1.4rem}
+.spark .lbl{
+  font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.58rem;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--scale);margin-bottom:.5rem;
+}
+.sparkbars{display:flex;align-items:flex-end;gap:2px;height:52px}
+.sparkbars i{flex:1;min-width:2px;background:var(--surface);position:relative}
+.sparkbars i.met{background:var(--scale)}
+.sparkbars i.none{background:var(--line-soft)}
+.sparkfoot{
+  display:flex;justify-content:space-between;margin-top:.4rem;
+  font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.56rem;
+  letter-spacing:.1em;color:var(--bone);
+}
+
+.ptracks{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:1rem;margin-top:1.5rem;padding-top:1.4rem;border-top:1px solid var(--line-soft);
+}
+.ptrack .tname{
+  font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.59rem;letter-spacing:.16em;
+  text-transform:uppercase;display:flex;align-items:center;gap:.4rem;margin-bottom:.4rem;
+}
+.ptrack .tname i{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+.tbar{height:4px;background:var(--line-soft);overflow:hidden}
+.tbar i{display:block;height:100%;width:0}
+.ptrack .tcount{
+  font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.57rem;color:var(--bone);
+  margin-top:.35rem;letter-spacing:.08em;font-variant-numeric:tabular-nums;
+}
+
+select{
+  width:100%;padding:.6rem .7rem;background:var(--river);border:1px solid var(--line);
+  color:var(--silt);font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92rem;
+}
+select:focus{outline:2px solid var(--roe);outline-offset:1px}
+
 .hide{display:none!important}
 
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -388,7 +490,43 @@ footer{
     </div>
 
     <div class="legend" id="tracklegend"></div>
-    <p class="note">Tap any day to log it. Days with a colored edge are milestone targets &mdash; the color says which track. Shading and checkmarks reflect whoever's name is in the log form below.</p>
+    <p class="note">Tap any day to log it. Days with a colored edge are milestone targets &mdash; the color says which track. Shading and checkmarks reflect whoever is selected below.</p>
+  </div>
+</section>
+
+<section>
+  <h2>In the run</h2>
+  <div class="card">
+    <div class="people" id="people"></div>
+    <p class="note" id="peoplenote">Nobody has logged a day yet.</p>
+  </div>
+</section>
+
+<section id="profilesec">
+  <h2>Profile</h2>
+  <div class="card">
+    <div class="phead">
+      <div class="pavatar" id="pavatar">&mdash;</div>
+      <div class="pname">
+        <h3 id="pwho">&mdash;</h3>
+        <p class="pwhy" id="pwhy"></p>
+        <button class="linkish" id="editwhy" type="button">Add why you're in</button>
+      </div>
+    </div>
+
+    <div class="whyedit hide" id="whyedit">
+      <label for="whyinput">Why you're in &mdash; one line</label>
+      <input id="whyinput" maxlength="160" placeholder="Want to keep up with the kids on a hike.">
+      <div class="whybtns">
+        <button id="savewhy" type="button">Save</button>
+        <button id="cancelwhy" class="ghost" type="button">Cancel</button>
+      </div>
+      <div class="msg" id="whymsg"></div>
+    </div>
+
+    <div class="pstats" id="pstats"></div>
+    <div class="spark" id="spark"></div>
+    <div class="ptracks" id="ptracks"></div>
   </div>
 </section>
 
@@ -397,7 +535,11 @@ footer{
   <div class="card">
     <div class="target" id="seltarget">&mdash;</div>
     <div class="grid">
-      <div><label for="who">Your name</label><input id="who" placeholder="Rach" autocomplete="name"></div>
+      <div>
+        <label for="whopick">Who are you</label>
+        <select id="whopick"></select>
+        <input id="who" class="hide" placeholder="Your name" autocomplete="name" aria-label="Your name">
+      </div>
       <div><label for="date">Date</label><input id="date" type="date" min="2026-07-22" max="2027-07-22"></div>
       <div><label for="steps">Steps</label><input id="steps" type="number" min="0" step="100" placeholder="7500"></div>
       <div><label for="hang">Dead hang (seconds)</label><input id="hang" type="number" min="0" step="1" placeholder="35"></div>
@@ -633,7 +775,9 @@ if(view < START) view = new Date(START);
 if(view > END) view = new Date(END);
 view = new Date(view.getFullYear(), view.getMonth(), 1);
 
-var entries = {}, allGoals = {}, myMiles = {}, filter = '', passphrase = '';
+var entries = {}, allGoals = {}, allPeople = {}, myMiles = {}, filter = '', passphrase = '';
+/* Who the profile section is showing. Defaults to you, but you can look at anyone. */
+var viewing = '';
 
 /* ==========================================================================
    Gate
@@ -700,6 +844,246 @@ $('pass').onkeydown = function(e){ if(e.key === 'Enter') $('enter').click(); };
 /* ==========================================================================
    Rendering
    ========================================================================== */
+/* ==========================================================================
+   Per-person stats — all derived from the log, nothing extra stored.
+   ========================================================================== */
+
+/** Stable colour per person, so the same face keeps the same marker all year. */
+function personColor(name){
+  var h = 0, s = slug(name);
+  for(var i=0;i<s.length;i++) h = (h*31 + s.charCodeAt(i)) % 360;
+  // Keep away from the sockeye red the UI reserves for its own accents.
+  if(h > 5 && h < 30) h = (h + 40) % 360;
+  return 'hsl('+h+',42%,62%)';
+}
+
+function initials(name){
+  var parts = String(name).trim().split(/\s+/).filter(Boolean);
+  if(!parts.length) return '?';
+  if(parts.length === 1) return parts[0].substring(0,2).toUpperCase();
+  return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+}
+
+function entriesFor(name){
+  var key = slug(name), out = [];
+  for(var k in entries){ if(k.indexOf(key+':') === 0) out.push(entries[k]); }
+  out.sort(function(a,b){ return a.date.localeCompare(b.date); });
+  return out;
+}
+
+/**
+ * Streak counts back from today (or from the last logged day if that is more
+ * recent than a gap), so a day not yet logged doesn't zero someone out.
+ */
+function streakFor(list){
+  if(!list.length) return 0;
+  var have = {};
+  list.forEach(function(e){ have[e.date] = true; });
+
+  var today = new Date();
+  var start = iso(today);
+  // Grace: if today isn't logged yet, start counting from yesterday.
+  if(!have[start]){
+    var y = new Date(today.getFullYear(), today.getMonth(), today.getDate()-1);
+    start = iso(y);
+    if(!have[start]) return 0;
+  }
+  var n = 0, cur = start.split('-');
+  var d = new Date(+cur[0], +cur[1]-1, +cur[2]);
+  while(have[iso(d)]){
+    n++;
+    d = new Date(d.getFullYear(), d.getMonth(), d.getDate()-1);
+  }
+  return n;
+}
+
+function statsFor(name){
+  var list = entriesFor(name);
+  var hit = 0, steps = 0, bestHang = 0, bestPull = 0, lifts = 0;
+  list.forEach(function(e){
+    var p = e.date.split('-');
+    var i = dayIndex(new Date(+p[0],+p[1]-1,+p[2]));
+    var st = +e.steps || 0;
+    steps += st;
+    if(st >= targetFor(i)) hit++;
+    if((+e.hang||0) > bestHang) bestHang = +e.hang;
+    if((+e.pull||0) > bestPull) bestPull = +e.pull;
+    if(e.lift) lifts++;
+  });
+  var goals = allGoals[slug(name)] || {};
+  var ticked = 0;
+  for(var k in goals){ if(goals[k]) ticked++; }
+
+  return {
+    days: list.length,
+    hit: hit,
+    rate: list.length ? Math.round(hit/list.length*100) : 0,
+    steps: steps,
+    bestHang: bestHang,
+    bestPull: bestPull,
+    lifts: lifts,
+    streak: streakFor(list),
+    ticked: ticked,
+    list: list
+  };
+}
+
+/** Milestones ticked per track, for the little progress bars. */
+function trackProgress(name){
+  var goals = allGoals[slug(name)] || {};
+  return TRACKS.map(function(tr,ti){
+    var done = 0;
+    tr.items.forEach(function(it,ii){ if(goals[ti+'.'+ii]) done++; });
+    return {name:tr.name, color:tr.color, done:done, total:tr.items.length};
+  });
+}
+
+function drawPeople(){
+  var names = peopleList();
+  if(!names.length){
+    $('people').innerHTML = '';
+    $('peoplenote').textContent = 'Nobody has logged a day yet. Be the first.';
+    return;
+  }
+  $('peoplenote').textContent = names.length === 1
+    ? 'One person in the run. Tap a card to see their year.'
+    : names.length + ' people in the run. Tap a card to see anyone’s year.';
+
+  $('people').innerHTML = names.map(function(n){
+    var s = statsFor(n);
+    var bits = s.streak > 0 ? s.streak + ' day streak' : s.days + ' days logged';
+    return '<button type="button" class="pcard'+(slug(n)===slug(viewing)?' on':'')+'" data-p="'+esc(n)+'">'+
+      '<span class="pmark" style="background:'+personColor(n)+'">'+esc(initials(n))+'</span>'+
+      '<span class="pmeta"><b>'+esc(n)+'</b><span>'+esc(bits)+'</span></span>'+
+    '</button>';
+  }).join('');
+
+  var cards = $('people').querySelectorAll('[data-p]');
+  for(var i=0;i<cards.length;i++){
+    cards[i].onclick = function(){
+      viewing = this.getAttribute('data-p');
+      drawPeople();
+      drawProfile();
+      $('profilesec').scrollIntoView({behavior:'smooth', block:'start'});
+    };
+  }
+}
+
+function drawProfile(){
+  var name = viewing || $('who').value.trim();
+  if(!name){
+    $('profilesec').classList.add('hide');
+    return;
+  }
+  $('profilesec').classList.remove('hide');
+
+  var s = statsFor(name);
+  var person = allPeople[slug(name)] || {};
+  var mine = slug(name) === slug($('who').value.trim());
+
+  $('pavatar').textContent = initials(name);
+  $('pavatar').style.background = personColor(name);
+  $('pwho').textContent = name;
+
+  if(person.why){
+    $('pwhy').textContent = person.why;
+    $('pwhy').classList.remove('hide');
+  } else {
+    $('pwhy').classList.add('hide');
+  }
+
+  // Only you can edit your own line.
+  $('editwhy').classList.toggle('hide', !mine);
+  $('editwhy').textContent = person.why ? 'Edit why you’re in' : 'Add why you’re in';
+
+  var tiles = [
+    {k:'Current streak', v:s.streak, u:s.streak===1?' day':' days'},
+    {k:'Days logged',    v:s.days,   u:' of 365'},
+    {k:'Target hit',     v:s.rate+'%', sub:s.hit+' of '+s.days+' days'},
+    {k:'Total steps',    v:s.steps.toLocaleString()},
+    {k:'Best dead hang', v:s.bestHang || '—', u:s.bestHang?'s':''},
+    {k:'Best pull-ups',  v:s.bestPull || '—'},
+    {k:'Lift sessions',  v:s.lifts},
+    {k:'Milestones',     v:s.ticked, u:' of 48'}
+  ];
+  $('pstats').innerHTML = tiles.map(function(t){
+    return '<div class="pstat"><div class="k">'+esc(t.k)+'</div>'+
+      '<div class="v">'+t.v+(t.u?'<span>'+esc(t.u)+'</span>':'')+'</div>'+
+      (t.sub?'<div class="sub">'+esc(t.sub)+'</div>':'')+'</div>';
+  }).join('');
+
+  drawSpark(s.list);
+
+  $('ptracks').innerHTML = trackProgress(name).map(function(t){
+    var pct = t.total ? Math.round(t.done/t.total*100) : 0;
+    return '<div class="ptrack">'+
+      '<div class="tname" style="color:'+t.color+'"><i style="background:'+t.color+'"></i>'+esc(t.name)+'</div>'+
+      '<div class="tbar"><i style="width:'+pct+'%;background:'+t.color+'"></i></div>'+
+      '<div class="tcount">'+t.done+' of '+t.total+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+/** Last 30 logged days as bars, height relative to that day's target. */
+function drawSpark(list){
+  if(!list.length){
+    $('spark').innerHTML = '<div class="lbl">Recent days</div>'+
+      '<p class="note" style="margin:0">No days logged yet.</p>';
+    return;
+  }
+  var recent = list.slice(-30);
+  var bars = recent.map(function(e){
+    var p = e.date.split('-');
+    var i = dayIndex(new Date(+p[0],+p[1]-1,+p[2]));
+    var tar = targetFor(i), st = +e.steps || 0;
+    var pct = Math.max(4, Math.min(100, Math.round(st/tar*100)));
+    var cls = st >= tar ? 'met' : (st ? '' : 'none');
+    return '<i class="'+cls+'" style="height:'+pct+'%" title="'+esc(e.date)+' — '+st.toLocaleString()+' steps"></i>';
+  }).join('');
+
+  $('spark').innerHTML =
+    '<div class="lbl">Last '+recent.length+' logged '+(recent.length===1?'day':'days')+' vs target</div>'+
+    '<div class="sparkbars">'+bars+'</div>'+
+    '<div class="sparkfoot"><span>'+esc(recent[0].date)+'</span><span>'+esc(recent[recent.length-1].date)+'</span></div>';
+}
+
+/* ==========================================================================
+   Person picker
+   ========================================================================== */
+/* Sentinel for the "someone new" option. Angle brackets can't appear in a
+   name that reached us, so this can never collide with a real person. */
+var ADD_NEW = '<new>';
+
+function drawPicker(){
+  var names = peopleList();
+  var cur = $('who').value.trim();
+  var opts = '<option value="">Choose your name…</option>';
+  opts += names.map(function(n){
+    return '<option value="'+esc(n)+'"'+(slug(n)===slug(cur)?' selected':'')+'>'+esc(n)+'</option>';
+  }).join('');
+  opts += '<option value="'+ADD_NEW+'">＋ Someone new…</option>';
+  $('whopick').innerHTML = opts;
+
+  // A name that isn't in the list yet (first-timer mid-entry) keeps the text box.
+  var known = names.some(function(n){ return slug(n) === slug(cur); });
+  if(cur && !known){
+    $('whopick').classList.add('hide');
+    $('who').classList.remove('hide');
+  }
+}
+
+function setPerson(name){
+  $('who').value = name;
+  saveName(name);
+  viewing = name;
+  myMiles = (name && allGoals[slug(name)]) ? allGoals[slug(name)] : {};
+  drawPicker();
+  drawMiles();
+  drawPeople();
+  drawProfile();
+  redraw();
+}
+
 function drawHeader(){
   var i = dayIndex(new Date());
   var clamped = Math.max(0, Math.min(TOTAL, i));
@@ -915,8 +1299,10 @@ function applyLoad(res){
     entries[slug(e.who)+':'+e.date] = e;
   });
   allGoals = res.goals || {};
+  allPeople = res.people || {};
   var who = $('who') ? $('who').value.trim() : '';
   myMiles = (who && allGoals[slug(who)]) ? allGoals[slug(who)] : {};
+  if(!viewing && who) viewing = who;
   $('syncstate').textContent = 'Synced';
 }
 
@@ -929,6 +1315,9 @@ async function loadAll(){
     drawFilters();
     drawLog();
     drawMiles();
+    drawPicker();
+    drawPeople();
+    drawProfile();
     redraw();
   }catch(err){
     $('syncstate').textContent = 'Offline';
@@ -952,6 +1341,7 @@ async function saveMiles(e){
     if(!res || !res.ok) throw new Error('save-failed');
     allGoals[slug(who)] = myMiles;
     m.className='msg ok'; m.textContent='Goal saved.';
+    drawProfile();
     redraw();
   }catch(err){
     m.className='msg err'; m.textContent='That did not save. Check your connection and tick it again.';
@@ -1058,12 +1448,52 @@ $('today').onclick = function(){
   pickDay(iso(n));
 };
 $('refresh').onclick = loadAll;
-$('who').onblur = function(){
-  var who = $('who').value.trim();
-  saveName(who);
-  myMiles = (who && allGoals[slug(who)]) ? allGoals[slug(who)] : {};
-  drawMiles();
-  redraw();
+$('whopick').onchange = function(){
+  var v = this.value;
+  if(v === ADD_NEW){
+    $('whopick').classList.add('hide');
+    $('who').classList.remove('hide');
+    $('who').value = '';
+    $('who').focus();
+    return;
+  }
+  setPerson(v);
+};
+
+/* Typing a brand-new name: commit it on blur or Enter. */
+$('who').onblur = function(){ setPerson($('who').value.trim()); };
+$('who').onkeydown = function(e){ if(e.key === 'Enter'){ e.preventDefault(); this.blur(); } };
+
+$('editwhy').onclick = function(){
+  var person = allPeople[slug($('who').value.trim())] || {};
+  $('whyinput').value = person.why || '';
+  $('whyedit').classList.remove('hide');
+  $('whymsg').textContent = '';
+  $('whyinput').focus();
+};
+$('cancelwhy').onclick = function(){ $('whyedit').classList.add('hide'); };
+
+$('savewhy').onclick = async function(){
+  var who = $('who').value.trim(), m = $('whymsg');
+  if(!who){ m.className='msg err'; m.textContent='Pick your name first.'; return; }
+  var why = $('whyinput').value.trim();
+  $('savewhy').disabled = true;
+  m.className='msg'; m.textContent='Saving…';
+  var slow = setTimeout(function(){ m.textContent='Still saving — the board is waking up.'; }, 3500);
+  try{
+    var res = await api({action:'savePerson', who:who, why:why});
+    clearTimeout(slow);
+    if(!res || !res.ok) throw new Error('save-failed');
+    if(!allPeople[slug(who)]) allPeople[slug(who)] = {who:who};
+    allPeople[slug(who)].why = why;
+    m.className='msg ok'; m.textContent='Saved.';
+    $('whyedit').classList.add('hide');
+    drawProfile();
+  }catch(err){
+    clearTimeout(slow);
+    m.className='msg err'; m.textContent='That did not save. Check your connection and try again.';
+  }
+  $('savewhy').disabled = false;
 };
 $('date').onchange = function(){ drawTarget(); redraw(); };
 
@@ -1075,6 +1505,7 @@ function boot(){
   if(n) $('who').value = n;
   var who = n.trim();
   myMiles = (who && allGoals[slug(who)]) ? allGoals[slug(who)] : {};
+  if(!viewing) viewing = who;
 
   $('date').value = iso(new Date() < START ? START : (new Date() > END ? END : new Date()));
   drawHeader();
@@ -1083,6 +1514,9 @@ function boot(){
   drawMiles();
   drawFilters();
   drawLog();
+  drawPicker();
+  drawPeople();
+  drawProfile();
   drawCal();
 }
 

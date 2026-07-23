@@ -12,11 +12,13 @@
 var PASSPHRASE = 'CHANGE-ME';
 // ----------------------------------------------------------------------------
 
-var ENTRY_SHEET = 'entries';
-var GOAL_SHEET  = 'goals';
+var ENTRY_SHEET  = 'entries';
+var GOAL_SHEET   = 'goals';
+var PEOPLE_SHEET = 'people';
 
-var ENTRY_HEADERS = ['key', 'who', 'date', 'steps', 'hang', 'pull', 'lift', 'text', 'updated'];
-var GOAL_HEADERS  = ['who', 'goals', 'updated'];
+var ENTRY_HEADERS  = ['key', 'who', 'date', 'steps', 'hang', 'pull', 'lift', 'text', 'updated'];
+var GOAL_HEADERS   = ['who', 'goals', 'updated'];
+var PEOPLE_HEADERS = ['who', 'why', 'joined', 'updated'];
 
 /**
  * Apps Script web apps cannot send CORS headers, so the page talks to us with
@@ -47,10 +49,11 @@ function route(params) {
     return { ok: false, error: 'bad-pass' };
   }
   switch (params.action) {
-    case 'load':      return handleLoad();
-    case 'saveEntry': return handleSaveEntry(params);
-    case 'saveGoals': return handleSaveGoals(params);
-    default:          return { ok: false, error: 'unknown-action' };
+    case 'load':       return handleLoad();
+    case 'saveEntry':  return handleSaveEntry(params);
+    case 'saveGoals':  return handleSaveGoals(params);
+    case 'savePerson': return handleSavePerson(params);
+    default:           return { ok: false, error: 'unknown-action' };
   }
 }
 
@@ -60,8 +63,23 @@ function handleLoad() {
   return {
     ok: true,
     entries: readEntries(),
-    goals: readGoals()
+    goals: readGoals(),
+    people: readPeople()
   };
+}
+
+function readPeople() {
+  var rows = readAll(sheetFor(PEOPLE_SHEET, PEOPLE_HEADERS));
+  var out = {};
+  rows.forEach(function (r) {
+    if (!r.who) return;
+    out[slug(String(r.who))] = {
+      who: String(r.who),
+      why: String(r.why || ''),
+      joined: normalizeDate(r.joined)
+    };
+  });
+  return out;
 }
 
 function readEntries() {
@@ -164,6 +182,40 @@ function handleSaveGoals(params) {
     var sheet = sheetFor(GOAL_SHEET, GOAL_HEADERS);
     var row = [who, goals, new Date()];
     var existing = findRowByKey(sheet, slug(who), function (v) { return slug(String(v)); });
+    if (existing > 0) {
+      sheet.getRange(existing, 1, 1, row.length).setValues([row]);
+    } else {
+      sheet.appendRow(row);
+    }
+    return { ok: true };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/** The one-line "why I'm in" shown on a person's profile. */
+function handleSavePerson(params) {
+  var who = trimmed(params.who);
+  if (!who) return { ok: false, error: 'missing-who' };
+
+  var why = trimmed(params.why);
+  if (why.length > 160) why = why.substring(0, 160);
+
+  var lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    var sheet = sheetFor(PEOPLE_SHEET, PEOPLE_HEADERS);
+    var existing = findRowByKey(sheet, slug(who), function (v) { return slug(String(v)); });
+    // Keep the original joined date when updating an existing person.
+    var joined = '';
+    if (existing > 0) {
+      joined = normalizeDate(sheet.getRange(existing, 3).getValue());
+    }
+    if (!joined) {
+      joined = Utilities.formatDate(new Date(), 'UTC', 'yyyy-MM-dd');
+    }
+
+    var row = [who, why, joined, new Date()];
     if (existing > 0) {
       sheet.getRange(existing, 1, 1, row.length).setValues([row]);
     } else {
