@@ -1,0 +1,5 @@
+# Local Claude Code settings — contains the passphrase in allowlisted commands.
+.claude/
+
+.DS_Store
+node_modules/
