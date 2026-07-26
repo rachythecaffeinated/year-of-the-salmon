@@ -278,6 +278,18 @@ h2{
 .dmark.on{color:var(--silt)}
 .dmark.on.fuel i{background:var(--scale);border-color:var(--scale)}
 .dmark.on.move i{background:var(--t-hang);border-color:var(--t-hang)}
+.dmark.on.burn i{background:var(--t-hang);border-color:var(--t-hang)}
+.dmark.on.weight i{background:var(--t-lad);border-color:var(--t-lad)}
+
+.dplanline{
+  font-family:system-ui,-apple-system,sans-serif;font-size:.78rem;color:var(--bone);
+  margin:0 0 1rem;line-height:1.6;
+}
+.dplanline b{font-weight:400;color:var(--silt)}
+
+/* planned days — ahead of today, drawn from the projection */
+.dcell.plan{background:rgba(95,201,232,.13)}
+.dcell.plan.milestone{background:rgba(95,201,232,.34)}
 
 /* the run grid — weeks as columns, matching the year view geometry */
 .drun{overflow-x:auto;padding-bottom:.4rem}
@@ -728,6 +740,7 @@ select:focus{outline:2px solid var(--roe);outline-offset:1px}
 
   <div class="card hide" id="dmain">
     <div class="dsum" id="dsummary"></div>
+    <div id="dplan" style="padding-bottom:1.4rem;margin-bottom:1.4rem;border-bottom:1px solid var(--line)"></div>
 
     <div class="calbar">
       <h3 style="font-size:1.2rem">The run<span class="mono" style="display:block;font-size:.6rem;color:var(--scale);letter-spacing:.14em;margin-top:.3rem" id="drunsub"></span></h3>
@@ -1818,11 +1831,21 @@ function dSaveDay(isoDate, patch){
   if(Object.keys(cur).length <= 2 && !cur.note) delete m[isoDate];
   else m[isoDate] = cur;
   dMonths[mk] = m;
+  /* A new weigh-in re-anchors the plan, so the projection has to rebuild. */
+  dPlanInvalidate();
   return dSet('month:' + mk, m);
 }
 
 function dNum(v){ var n = Number(v); return isFinite(n) ? n : null; }
 function dHas(v){ return v !== null && v !== undefined && v !== ''; }
+
+/* new Date('2026-08-21') is UTC midnight, which iso() then renders as the
+   previous day anywhere west of Greenwich. Everything here is local-date
+   arithmetic, so parse local. */
+function dDate(isoDate){
+  var p = String(isoDate).split('-');
+  return new Date(+p[0], +p[1] - 1, +p[2]);
+}
 
 /* ---- units ---- */
 function dIsMetric(){ return dProfile && dProfile.unit === 'metric'; }
@@ -1899,7 +1922,10 @@ function dBalance(isoDate){
    grid can never reward a bigger deficit. */
 function dTier(isoDate){
   var e = dDay(isoDate);
-  if(!e) return 'none';
+  if(!e){
+    /* Nothing logged. Ahead of today, show it as planned rather than empty. */
+    return (isoDate > iso(new Date()) && dPlanFor(isoDate)) ? 'plan' : 'none';
+  }
   var g = dGoals(e);
   if(g.fuel && g.move) return 'run';
   var bal = dBalance(isoDate);
@@ -1913,9 +1939,118 @@ function dTier(isoDate){
   return 't3';
 }
 
+/* ---- the plan ----
+   A day-by-day projection across the challenge year. Weight loss is not linear:
+   as you get lighter your resting metabolism falls, so the same intake buys a
+   smaller deficit each week. This walks day by day and recomputes BMR from the
+   projected weight at every step, which is why late-year numbers here are lower
+   than a flat "deficit / 3500" projection would suggest.
+
+   Built once and cached; invalidated whenever the profile changes. */
+var dPlanCache = null;
+
+function dPlanInvalidate(){ dPlanCache = null; }
+
+function dBuildPlan(){
+  if(dPlanCache) return dPlanCache;
+  if(!dProfile || !dProfile.startWeight) return null;
+
+  var intake = dPlannedIntake();
+  if(intake === null) return null;
+
+  var mult = dActivityMult(), perUnit = dPerUnit();
+  var plan = {}, w = dProfile.startWeight;
+  var d = new Date(START), guard = 0;
+
+  /* Runs from day one to the end of the challenge, re-anchoring to each real
+     weigh-in as it passes. Two things matter here:
+
+     Each day's line is set by data from BEFORE that day, so a day is never
+     judged against a line derived from its own number — otherwise the day you
+     weighed in could never be off-plan, which would make the mark meaningless.
+
+     Re-anchoring as it goes means a heavy fortnight bends the line from that
+     point forward instead of leaving you chasing a projection made in July.
+     Logging a weight for a past day rewrites the line from that day on, which
+     is intended: the plan reflects what actually happened. */
+  while(d <= END && guard < 400){
+    var key = iso(d);
+    var bmr = dBMR(w);
+    var maint = bmr * mult + ((dProfile.mode === 'calibrated' && dCal) ? (dCal.offset || 0) : 0);
+    var deficit = maint - intake;
+    plan[key] = {weight: Math.round(w * 10) / 10, maintenance: Math.round(maint), deficit: Math.round(deficit)};
+
+    /* Tomorrow starts from what the scale actually said today, if it said
+       anything; otherwise from where the projection had us. */
+    var logged = dDay(key);
+    var actual = (logged && dHas(logged.weight)) ? dNum(logged.weight) : null;
+    w = (actual !== null ? actual : w) - deficit / perUnit;
+    if(dProfile.goalWeight && w < dProfile.goalWeight) w = dProfile.goalWeight;
+    d.setDate(d.getDate() + 1);
+    guard++;
+  }
+
+  /* Days before the anchor have no projection — they already happened. */
+  dPlanCache = plan;
+  return plan;
+}
+
+/* What the plan assumes you eat. Their own stated range midpoint, unless they
+   set an explicit planned intake in the forecast. */
+function dPlannedIntake(){
+  if(!dProfile) return null;
+  if(dHas(dProfile.plannedIntake)) return dNum(dProfile.plannedIntake);
+  if(dProfile.intakeMin && dProfile.intakeMax) return (dProfile.intakeMin + dProfile.intakeMax) / 2;
+  if(dProfile.targetDeficit && dProfile.startWeight){
+    return Math.round(dBMR(dProfile.startWeight) * dActivityMult() - dProfile.targetDeficit);
+  }
+  return null;
+}
+
+function dPlanFor(isoDate){
+  var plan = dBuildPlan();
+  return plan ? (plan[isoDate] || null) : null;
+}
+
+/* The burn target for a day: what the plan says you need to burn to run your
+   intended deficit at that day's projected weight. */
+function dBurnTarget(isoDate){
+  var p = dPlanFor(isoDate);
+  if(p) return p.maintenance;
+  if(!dProfile) return null;
+  var w = dLatestWeight() || dProfile.startWeight;
+  return w ? Math.round(dBMR(w) * dActivityMult()) : null;
+}
+
+/* ---- the three marks ----
+   Weight  — a logged weight at or below the plan's line for that day.
+   Fuel    — intake inside the stated range (unchanged).
+   Burn    — estimated burn reached the day's burn target.
+   Each is independent; any can succeed alone. */
+function dMarks(isoDate){
+  var e = dDay(isoDate);
+  var g = dGoals(e);
+  var out = {weight:false, fuel:g.fuel, burn:false, weightKnown:false};
+  if(!e) return out;
+
+  if(dHas(e.weight)){
+    out.weightKnown = true;
+    var p = dPlanFor(isoDate);
+    /* No plan line for this day (before the anchor, or no profile) → can't judge. */
+    if(p) out.weight = dNum(e.weight) <= p.weight;
+  }
+
+  var target = dBurnTarget(isoDate);
+  if(target){
+    var burn = dBurnParts(isoDate).total;
+    out.burn = burn >= target;
+  }
+  return out;
+}
+
 /* ---- calibration ---- */
 function dTrendWeight(isoDate){
-  var vals = [], d = new Date(isoDate);
+  var vals = [], d = dDate(isoDate);
   for(var i = 0; i < 7; i++){
     var e = dDay(iso(d));
     if(e && dHas(e.weight)) vals.push(dNum(e.weight));
@@ -1929,7 +2064,7 @@ function dRecalibrate(){
   if(!dProfile || dProfile.mode !== 'calibrated') return null;
   var today = iso(new Date());
   if(dCal && dCal.at){
-    var days = Math.round((new Date(today) - new Date(dCal.at)) / 864e5);
+    var days = Math.round((dDate(today) - dDate(dCal.at)) / 864e5);
     if(days < CAL_WINDOW) return null;
   }
   var then = new Date(); then.setDate(then.getDate() - CAL_WINDOW);
@@ -1953,6 +2088,7 @@ function dRecalibrate(){
   var moved = Math.round(next - prev);
   dCal = {offset: Math.round(next), at: today, moved: moved};
   dSet('calibration', dCal);
+  dPlanInvalidate();
   return dCal;
 }
 
@@ -2025,6 +2161,7 @@ function dSaveProfile(){
     return;
   }
   dProfile = p;
+  dPlanInvalidate();
   if(!dSet('profile', p)){
     m.className = 'msg err';
     m.textContent = 'This browser refused to save. Private browsing blocks it.';
@@ -2038,7 +2175,7 @@ function dSaveProfile(){
 /* ---- day entry form ---- */
 function dDayForm(isoDate){
   var e = dDay(isoDate) || {};
-  var g = dGoals(e), parts = dBurnParts(isoDate);
+  var parts = dBurnParts(isoDate);
   var bal = dBalance(isoDate);
   var u = dUnitLabel();
 
@@ -2047,12 +2184,32 @@ function dDayForm(isoDate){
   else if(bal !== null && bal < 0) line = 'You ate ' + Math.abs(Math.round(bal)).toLocaleString() + ' calories above your estimated burn today.';
   else if(bal !== null) line = 'You landed level with your estimated burn today.';
 
+  var mk = dMarks(isoDate), plan = dPlanFor(isoDate), burnTarget = dBurnTarget(isoDate);
+
+  var planLine = '';
+  if(plan){
+    var wNow = e && dHas(e.weight) ? dNum(e.weight) : null;
+    planLine = '<p class="dplanline">Plan for this day: <b>' + plan.weight + ' ' + u + '</b>';
+    if(wNow !== null){
+      var diff = wNow - plan.weight;
+      planLine += ' &middot; you logged ' + wNow + ' ' + u + ', ' +
+        (Math.abs(diff) < 0.05 ? 'right on the line' :
+          (diff < 0 ? '<span style="color:var(--scale)">' + Math.abs(diff).toFixed(1) + ' ' + u + ' ahead</span>'
+                    : '<span style="color:var(--roe)">' + diff.toFixed(1) + ' ' + u + ' behind</span>'));
+    }
+    planLine += '</p>';
+  }
+
   return '' +
     '<h4>' + esc(isoDate) + '</h4>' +
-    (line ? '<p class="note" style="margin:0 0 1rem;color:var(--silt)">' + esc(line) + '</p>' : '') +
+    (line ? '<p class="note" style="margin:0 0 .5rem;color:var(--silt)">' + esc(line) + '</p>' : '') +
+    planLine +
     '<div class="dmarks" style="margin-bottom:1.1rem">' +
-      '<span class="dmark fuel ' + (g.fuel ? 'on' : '') + '"><i></i>Fuel ' + (g.fuel ? 'met' : 'not met') + '</span>' +
-      '<span class="dmark move ' + (g.move ? 'on' : '') + '"><i></i>Movement ' + (g.move ? 'met' : 'not met') + '</span>' +
+      '<span class="dmark weight ' + (mk.weight ? 'on' : '') + '"><i></i>Weight ' +
+        (mk.weight ? 'on plan' : (mk.weightKnown ? 'above plan' : 'not weighed')) + '</span>' +
+      '<span class="dmark fuel ' + (mk.fuel ? 'on' : '') + '"><i></i>Intake ' + (mk.fuel ? 'met' : 'not met') + '</span>' +
+      '<span class="dmark burn ' + (mk.burn ? 'on' : '') + '"><i></i>Burn ' + (mk.burn ? 'met' : 'not met') +
+        (burnTarget ? ' <span style="opacity:.7">(' + burnTarget.toLocaleString() + ')</span>' : '') + '</span>' +
     '</div>' +
     '<div class="grid">' +
       '<div><label for="dintake">Calories eaten</label><input id="dintake" type="number" min="0" step="10" value="' + (dHas(e.intake) ? e.intake : '') + '"></div>' +
@@ -2127,10 +2284,13 @@ function dDrawRun(){
       var cls = 'dcell ' + tier;
       if(key === today) cls += ' today';
       if(key === dSel) cls += ' sel';
-      var e = dDay(key), title = key;
+      var e = dDay(key), title = key, plan = dPlanFor(key);
       if(e){
         var bal = dBalance(key);
         title = key + (bal !== null ? ' — est. ' + Math.round(bal).toLocaleString() + ' balance' : ' — logged');
+        if(plan) title += ' · plan ' + plan.weight + ' ' + dUnitLabel();
+      } else if(plan){
+        title = key + ' — planned ' + plan.weight + ' ' + dUnitLabel();
       }
       cells += '<button type="button" class="' + cls + '" title="' + esc(title) + '" data-dd="' + key + '"></button>';
     }
@@ -2152,6 +2312,7 @@ function dDrawRun(){
     '<span><i style="background:var(--current-pale)"></i>Started</span>' +
     '<span><i style="background:rgba(168,181,174,.32)"></i>Around maintenance</span>' +
     '<span><i style="background:var(--roe)"></i>Surplus</span>' +
+    '<span><i style="background:rgba(95,201,232,.13)"></i>Planned, still ahead</span>' +
     '<span><i style="background:rgba(127,182,168,.05)"></i>No data</span>';
 }
 
@@ -2266,6 +2427,47 @@ function dDrawSummary(){
     '<div><div class="k">Deficit target</div><div class="v tnum">' + ((dProfile.targetDeficit || 0).toLocaleString()) + '<span> /day</span></div></div>';
 
   $('drunsub').textContent = calLine || 'All burn figures are estimates.';
+  dDrawPlanStrip();
+}
+
+/* A short read on where the plan says you'll be, and how today's marks landed. */
+function dDrawPlanStrip(){
+  var host = $('dplan');
+  if(!host) return;
+  var plan = dBuildPlan();
+  if(!plan){
+    host.innerHTML = '<p class="note" style="margin:0">Add your intake range and goal weight to see a projected plan for the year.</p>';
+    return;
+  }
+
+  var u = dUnitLabel(), today = iso(new Date());
+  var intake = dPlannedIntake();
+  var endKey = iso(END), endPlan = plan[endKey];
+  var goalHit = '';
+  if(dProfile.goalWeight){
+    for(var k in plan){ if(plan[k].weight <= dProfile.goalWeight){ if(!goalHit || k < goalHit) goalHit = k; } }
+  }
+
+  var mk = dMarks(today);
+  var todayPlan = plan[today];
+
+  host.innerHTML =
+    '<div class="dsum" style="border:none;padding:0;margin:0 0 1.1rem">' +
+      '<div><div class="k">Plan assumes</div><div class="v tnum">' + Math.round(intake).toLocaleString() + '<span> /day</span></div></div>' +
+      '<div><div class="k">Today\'s line</div><div class="v tnum">' + (todayPlan ? todayPlan.weight + ' ' : '&mdash;') + '<span>' + (todayPlan ? u : '') + '</span></div></div>' +
+      '<div><div class="k">' + (goalHit ? 'Goal weight on' : 'By 22 Jul 2027') + '</div><div class="v tnum" style="font-size:1.15rem">' +
+        (goalHit ? esc(goalHit) : (endPlan ? endPlan.weight + ' ' + u : '&mdash;')) + '</div></div>' +
+    '</div>' +
+    '<div class="dmarks">' +
+      '<span class="dmark weight ' + (mk.weight ? 'on' : '') + '"><i></i>Weight ' + (mk.weight ? 'on plan' : (mk.weightKnown ? 'above plan' : 'not weighed')) + '</span>' +
+      '<span class="dmark fuel ' + (mk.fuel ? 'on' : '') + '"><i></i>Intake ' + (mk.fuel ? 'met' : 'not met') + '</span>' +
+      '<span class="dmark burn ' + (mk.burn ? 'on' : '') + '"><i></i>Burn ' + (mk.burn ? 'met' : 'not met') + '</span>' +
+    '</div>' +
+    '<p class="note" style="margin-top:.9rem">' +
+      'The line falls more slowly later in the year on purpose &mdash; as you get lighter your ' +
+      'resting metabolism drops, so the same intake buys a smaller deficit. It re-anchors to your ' +
+      'most recent weigh-in, so a heavy week moves the line rather than breaking it. It\'s a projection, not a promise.' +
+    '</p>';
 }
 
 /* ---- forecast ---- */
@@ -2281,7 +2483,7 @@ function dRunForecast(){
   }
 
   var bmrNow = dBMR(cw);
-  var days = Math.round((new Date(gd) - new Date(iso(new Date()))) / 864e5);
+  var days = Math.round((dDate(gd) - dDate(iso(new Date()))) / 864e5);
   if(days <= 0){
     out.innerHTML = '<p class="note">That date is today or in the past. Pick a date further out.</p>';
     return;
@@ -2317,7 +2519,8 @@ function dRunForecast(){
       '</div>';
     if(intake !== null){
       html += '<p class="note">At ' + intake.toLocaleString() + ' a day you\'d average about ' +
-              Math.round(maintNow - intake).toLocaleString() + ' of deficit, before your maintenance falls with your weight.</p>';
+              Math.round(maintNow - intake).toLocaleString() + ' of deficit, before your maintenance falls with your weight.</p>' +
+              '<button id="dusenintake" class="ghost" type="button">Use this intake for my plan</button>';
     }
   }
 
@@ -2335,6 +2538,16 @@ function dRunForecast(){
     'per step both fall with weight, so a flat projection drifts badly over a year.</p>';
 
   out.innerHTML = html;
+
+  var useBtn = $('dusenintake');
+  if(useBtn){
+    useBtn.onclick = function(){
+      dProfile.plannedIntake = intake;
+      dSet('profile', dProfile);
+      dPlanInvalidate();
+      dRender();
+    };
+  }
 }
 
 /* Walks forward week by week, recomputing BMR as weight drops. */
@@ -2380,6 +2593,7 @@ function dImport(){
         if(data.calibration){ dCal = data.calibration; dSet('calibration', dCal); }
         dMonths = data.months || {};
         for(var mk in dMonths) dSet('month:' + mk, dMonths[mk]);
+        dPlanInvalidate();
         dRender();
       }catch(err){
         alert('That file didn\'t look like a deficit map backup.');
