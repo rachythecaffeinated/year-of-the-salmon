@@ -228,6 +228,153 @@ h2{
 .mile.hit label{color:var(--scale);text-decoration:line-through;text-decoration-color:rgba(127,182,168,.4)}
 .mile.hit label em{text-decoration:none;color:var(--scale)}
 
+/* ---------- deficit map (private, this device only) ---------- */
+:root{
+  --current:#1d5c6b;
+  --current-pale:rgba(29,92,107,.34);
+  --current-mid:rgba(29,92,107,.66);
+  --current-deep:#1d5c6b;
+}
+.private{
+  font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.6rem;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--bone);margin:-.55rem 0 1rem;display:flex;
+  align-items:center;gap:.45rem;
+}
+.private::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--scale);flex-shrink:0}
+
+.dsetup{text-align:left}
+.dsetup h3{font-size:1.35rem;font-weight:400;line-height:1.2;margin-bottom:.5rem}
+
+.dsum{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:1.3rem 1.8rem;padding-bottom:1.4rem;margin-bottom:1.4rem;border-bottom:1px solid var(--line);
+}
+.dsum .k{
+  font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.58rem;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--scale);
+}
+.dsum .v{font-size:1.5rem;line-height:1.15;margin-top:.25rem;font-variant-numeric:tabular-nums}
+.dsum .v span{font-size:.78rem;color:var(--bone);font-variant-numeric:normal}
+
+.dbreak{list-style:none;margin:.6rem 0 0;padding:0}
+.dbreak li{
+  display:flex;justify-content:space-between;gap:1rem;padding:.32rem 0;
+  border-bottom:1px solid var(--line-soft);font-family:ui-monospace,Menlo,Consolas,monospace;
+  font-size:.68rem;color:var(--bone);font-variant-numeric:tabular-nums;letter-spacing:.04em;
+}
+.dbreak li.tot{border-bottom:none;color:var(--silt);border-top:1px solid var(--line);margin-top:.3rem;padding-top:.5rem}
+.dbreak li b{font-weight:400;color:var(--silt)}
+
+/* two goal marks */
+.dmarks{display:flex;gap:1.4rem;flex-wrap:wrap;margin-top:.2rem}
+.dmark{
+  display:flex;align-items:center;gap:.45rem;font-family:ui-monospace,Menlo,Consolas,monospace;
+  font-size:.63rem;letter-spacing:.12em;text-transform:uppercase;color:var(--bone);
+}
+.dmark i{
+  width:11px;height:11px;border-radius:2px;flex-shrink:0;
+  border:1px solid var(--line);background:transparent;
+}
+.dmark.on{color:var(--silt)}
+.dmark.on.fuel i{background:var(--scale);border-color:var(--scale)}
+.dmark.on.move i{background:var(--t-hang);border-color:var(--t-hang)}
+.dmark.on.burn i{background:var(--t-hang);border-color:var(--t-hang)}
+.dmark.on.weight i{background:var(--t-lad);border-color:var(--t-lad)}
+
+.dsolved{margin-top:1.3rem;padding-top:1.2rem;border-top:1px solid var(--line)}
+.dsolvenote{
+  font-family:system-ui,-apple-system,sans-serif;font-size:.78rem;color:var(--bone);
+  margin-top:.85rem;line-height:1.6;
+}
+.dsolvenote b{font-weight:400;color:var(--silt)}
+
+.dplanline{
+  font-family:system-ui,-apple-system,sans-serif;font-size:.78rem;color:var(--bone);
+  margin:0 0 1rem;line-height:1.6;
+}
+.dplanline b{font-weight:400;color:var(--silt)}
+
+/* planned days — ahead of today, drawn from the projection */
+.dcell.plan{background:rgba(95,201,232,.13)}
+.dcell.plan.milestone{background:rgba(95,201,232,.34)}
+
+/* the run grid — weeks as columns, matching the year view geometry */
+.drun{overflow-x:auto;padding-bottom:.4rem}
+.drungrid{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,1fr);gap:2px;min-width:max-content}
+.dcell{
+  width:13px;height:13px;border-radius:2px;padding:0;margin:0;border:1px solid transparent;
+  background:rgba(127,182,168,.05);cursor:pointer;position:relative;
+}
+.dcell:hover{border-color:var(--silt)}
+.dcell.blank{background:none;cursor:default}
+.dcell.out{opacity:.18;cursor:default}
+.dcell.none{background:rgba(127,182,168,.05)}
+.dcell.surplus{background:var(--roe)}
+.dcell.neutral{background:rgba(168,181,174,.32)}
+.dcell.t1{background:var(--current-pale)}
+.dcell.t2{background:var(--current-mid)}
+.dcell.t3{background:var(--current-deep)}
+.dcell.today{border-color:var(--silt)}
+.dcell.sel{border-color:var(--roe)}
+/* salmon run — both goals met. The only bright state on the board. */
+.dcell.run{background:var(--scale);box-shadow:0 0 0 1px rgba(127,182,168,.55)}
+
+.drunhead{
+  display:grid;grid-auto-flow:column;gap:2px;min-width:max-content;margin-bottom:.35rem;
+  font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.5rem;letter-spacing:.06em;
+  color:var(--bone);
+}
+.drunhead div{width:13px;overflow:visible;white-space:nowrap}
+
+/* weekly rollup */
+.dweeks{margin-top:1.5rem;border-top:1px solid var(--line);padding-top:1.1rem}
+.dwrow{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:.7rem 1.2rem;
+  padding:.7rem 0;border-bottom:1px solid var(--line-soft);
+}
+.dwrow .k{
+  font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.55rem;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--scale);
+}
+.dwrow .v{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.86rem;margin-top:.2rem;font-variant-numeric:tabular-nums}
+
+/* day detail */
+.dday{margin-top:1.5rem;border-top:1px solid var(--line);padding-top:1.3rem}
+.dday h4{font-size:1.15rem;font-weight:400;margin-bottom:.9rem}
+
+/* forecast */
+.dscen{width:100%;border-collapse:collapse;margin-top:1rem}
+.dscen th,.dscen td{
+  text-align:left;padding:.5rem .6rem .5rem 0;border-bottom:1px solid var(--line-soft);
+  font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.7rem;font-variant-numeric:tabular-nums;
+}
+.dscen th{
+  font-size:.55rem;letter-spacing:.16em;text-transform:uppercase;color:var(--scale);font-weight:400;
+}
+.dscen td{color:var(--bone)}
+.dscen td:first-child{color:var(--silt)}
+.dwarn{border-left:2px solid var(--roe);padding:.7rem 0 .7rem .9rem;margin-top:1rem}
+.dwarn b{font-weight:400;color:var(--roe);display:block;margin-bottom:.3rem}
+
+/* river route */
+.droute{display:flex;gap:.5rem;overflow-x:auto;padding:.2rem 0 .6rem;margin-top:1.4rem}
+.dstop{
+  flex:0 0 auto;min-width:104px;padding:.6rem .7rem;border:1px solid var(--line-soft);
+  background:rgba(18,56,68,.42);
+}
+.dstop .n{
+  font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.52rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--bone);
+}
+.dstop .t{font-size:.8rem;margin-top:.3rem;line-height:1.3}
+.dstop.hit{border-color:rgba(127,182,168,.42);background:rgba(127,182,168,.12)}
+.dstop.hit .t{color:var(--scale)}
+.dstop.hit .n::after{content:" \2713"}
+
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+}
+
 /* ---------- form ---------- */
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem}
 label{
@@ -544,6 +691,7 @@ select:focus{outline:2px solid var(--roe);outline-offset:1px}
       <div><label for="steps">Steps</label><input id="steps" type="number" min="0" step="100" placeholder="7500"></div>
       <div><label for="hang">Dead hang (seconds)</label><input id="hang" type="number" min="0" step="1" placeholder="35"></div>
       <div><label for="pull">Strict pull-ups</label><input id="pull" type="number" min="0" step="1" placeholder="0"></div>
+      <div><label for="hiit">HIIT minutes</label><input id="hiit" type="number" min="0" step="5" placeholder="25"></div>
       <div class="check"><input id="lift" type="checkbox"><label for="lift">Lifted today</label></div>
       <div class="full">
         <label for="text">Note &mdash; how it felt, what you hit, what hurt</label>
@@ -554,6 +702,111 @@ select:focus{outline:2px solid var(--roe);outline-offset:1px}
     <button id="refresh" class="ghost" type="button">Refresh</button>
     <div class="msg" id="msg"></div>
     <p class="note">Entries and notes are shared &mdash; everyone with the link and passphrase sees every log. Keep it to what you're happy for the group to read.</p>
+  </div>
+</section>
+
+<section id="deficitsec">
+  <h2>Deficit map</h2>
+  <p class="private">Private &middot; only visible on this device</p>
+
+  <div class="card" id="dsetup">
+    <div class="dsetup">
+      <h3>Set your numbers to start.</h3>
+      <p class="note" style="margin:0 0 1.2rem">
+        This section is yours alone. It's kept on this device and never sent to the shared
+        board &mdash; nobody else in the run can see any of it. Clearing your browser data
+        clears this, so back it up now and then.
+      </p>
+      <div class="grid">
+        <div><label for="dunit">Units</label>
+          <select id="dunit"><option value="imperial">Pounds</option><option value="metric">Kilograms</option></select></div>
+        <div><label for="dsex">Sex</label>
+          <select id="dsex"><option value="female">Female</option><option value="male">Male</option></select></div>
+        <div><label for="dage">Age</label><input id="dage" type="number" min="13" max="100" step="1"></div>
+        <div><label for="dheight">Height (cm)</label><input id="dheight" type="number" min="120" max="230" step="1"></div>
+        <div><label for="dstartw">Current weight <span id="du1">(lb)</span></label><input id="dstartw" type="number" min="0" step="0.1"></div>
+        <div><label for="dgoalw">Goal weight <span id="du2">(lb)</span></label><input id="dgoalw" type="number" min="0" step="0.1"></div>
+        <div><label for="dgoaldate">Goal date</label><input id="dgoaldate" type="date"></div>
+        <div><label for="dintake0">Calories you can eat comfortably</label><input id="dintake0" type="number" min="0" step="25" placeholder="1800"></div>
+        <div><label for="dprotein">Protein target (g)</label><input id="dprotein" type="number" min="0" step="5"></div>
+        <div><label for="dmode">Accuracy mode</label>
+          <select id="dmode">
+            <option value="basic">Basic &mdash; equation only</option>
+            <option value="connected">Connected &mdash; I type in watch numbers</option>
+            <option value="calibrated">Calibrated &mdash; adjust from my trend</option>
+          </select></div>
+      </div>
+
+      <div id="dsolve"></div>
+
+      <button id="dsaveprofile" type="button">Save my numbers</button>
+      <button id="dcancelprofile" class="ghost hide" type="button">Cancel</button>
+      <div class="msg" id="dprofmsg"></div>
+      <p class="note" id="dmodenote"></p>
+    </div>
+  </div>
+
+  <div class="card hide" id="dmain">
+    <div class="dsum" id="dsummary"></div>
+    <div id="dplan" style="padding-bottom:1.4rem;margin-bottom:1.4rem;border-bottom:1px solid var(--line)"></div>
+
+    <div class="calbar">
+      <h3 style="font-size:1.2rem">The run<span class="mono" style="display:block;font-size:.6rem;color:var(--scale);letter-spacing:.14em;margin-top:.3rem" id="drunsub"></span></h3>
+      <div class="nav">
+        <button id="deditprofile" class="ghost" type="button">Edit my numbers</button>
+        <button id="dexport" class="ghost" type="button">Back up</button>
+        <button id="dimport" class="ghost" type="button">Restore</button>
+      </div>
+    </div>
+
+    <div class="drun">
+      <div class="drunhead" id="drunhead"></div>
+      <div class="drungrid" id="drungrid"></div>
+    </div>
+    <div class="legend" id="dlegend"></div>
+    <p class="note" style="margin-top:.8rem">
+      A day at your target and a day at three times your target look the same here &mdash; that's
+      on purpose. The bright square is the salmon run: it needs you to eat in range
+      <em>and</em> move, so a big deficit alone can never light it up.
+    </p>
+
+    <div class="droute" id="droute"></div>
+
+    <div class="dday" id="dday"></div>
+
+    <div class="dweeks">
+      <h4 style="font-size:1.05rem;font-weight:400;margin-bottom:.3rem">By the week</h4>
+      <p class="note" style="margin:0 0 .9rem">
+        The three numbers rarely agree. Theoretical is what the maths predicts from your
+        estimated deficit; scale is what you actually weighed; trend is the 7-day average.
+        Water, sodium, a hard session, and hormones move the scale on their own, so trust
+        the trend over any single morning.
+      </p>
+      <div id="dweeklist"></div>
+    </div>
+
+    <div class="dday">
+      <h4>Forecast</h4>
+      <p class="note" style="margin:0 0 1rem">
+        All burn figures are estimates from an equation, not measurements. Recomputed as
+        weight drops, because maintenance falls with you.
+      </p>
+      <div class="grid">
+        <div><label for="fcw">Current weight</label><input id="fcw" type="number" min="0" step="0.1"></div>
+        <div><label for="fgw">Goal weight</label><input id="fgw" type="number" min="0" step="0.1"></div>
+        <div><label for="fgd">Goal date</label><input id="fgd" type="date"></div>
+        <div><label for="fintake">Planned intake</label><input id="fintake" type="number" min="0" step="25"></div>
+        <div><label for="fact">Activity level</label>
+          <select id="fact">
+            <option value="1.2">Sedentary</option>
+            <option value="1.375" selected>Lightly active</option>
+            <option value="1.55">Moderately active</option>
+            <option value="1.725">Very active</option>
+          </select></div>
+      </div>
+      <button id="dforecast" type="button">Run forecast</button>
+      <div id="dfcout"></div>
+    </div>
   </div>
 </section>
 
@@ -1252,6 +1505,7 @@ function pickDay(key){
   $('steps').value  = e ? (e.steps||'') : '';
   $('hang').value   = e ? (e.hang||'')  : '';
   $('pull').value   = e ? (e.pull||'')  : '';
+  $('hiit').value   = e ? (e.hiit||'')  : '';
   $('lift').checked = e ? !!e.lift : false;
   $('text').value   = e ? (e.text||'')  : '';
   drawTarget();
@@ -1386,6 +1640,7 @@ function drawLog(){
     var bits = ['<b class="'+(st>=tar?'over':'under')+'">'+st.toLocaleString()+'</b> / '+tar.toLocaleString()+' steps'];
     if(+e.hang) bits.push('<b>'+(+e.hang)+'s</b> hang');
     if(+e.pull) bits.push('<b>'+(+e.pull)+'</b> pull-ups');
+    if(+e.hiit) bits.push('<b>'+(+e.hiit)+'m</b> HIIT');
     if(e.lift) bits.push('<b>lifted</b>');
     var marks = MARKS[e.date] || [];
     var mtag = marks.length ? ' <span style="color:'+marks[0].color+'">&middot; '+esc(marks[0].t)+'</span>' : '';
@@ -1413,6 +1668,7 @@ $('save').onclick = async function(){
     hang: $('hang').value || 0,
     pull: $('pull').value || 0,
     lift: $('lift').checked ? 'true' : 'false',
+    hiit: $('hiit').value || 0,
     text: $('text').value.trim()
   };
 
@@ -1518,6 +1774,1083 @@ function boot(){
   drawPeople();
   drawProfile();
   drawCal();
+  /* Private section boots last and on its own. If it throws, the shared board above
+     is already drawn and stays working. */
+  try{ deficitBoot(); }catch(err){ if(window.console) console.error('deficit map:', err); }
+}
+
+/* ==========================================================================
+   Deficit map — PRIVATE.
+
+   Every key here is prefixed `deficit:` and lives in localStorage on this
+   device only. Nothing in this block calls api(), so none of it can reach the
+   shared Google Sheet. The one thing it reads from shared state is myMiles,
+   read-only, so the River Route shows real milestone ticks instead of
+   duplicating those checkboxes.
+   ========================================================================== */
+var DKEY = 'deficit:';
+var dProfile = null;      /* deficit:profile */
+var dMonths  = {};        /* deficit:month:YYYY-MM -> { ISO date: entry } */
+var dCal     = null;      /* deficit:calibration */
+var dSel     = '';        /* selected day in the run grid */
+
+var KCAL_PER_LB = 3500, KCAL_PER_KG = 7716;
+var CAL_WINDOW = 28, CAL_STEP_CLAMP = 200, CAL_TOTAL_CLAMP = 400;
+
+function dGet(key, fallback){
+  try{
+    var raw = localStorage.getItem(DKEY + key);
+    return raw ? JSON.parse(raw) : fallback;
+  }catch(e){ return fallback; }
+}
+function dSet(key, value){
+  try{ localStorage.setItem(DKEY + key, JSON.stringify(value)); return true; }
+  catch(e){ return false; }
+}
+
+function dMonthKey(isoDate){ return isoDate.slice(0,7); }
+
+/* One read per month, not per day. The whole challenge is 13 keys. */
+function dLoadMonth(mk){
+  if(!dMonths[mk]) dMonths[mk] = dGet('month:' + mk, {}) || {};
+  return dMonths[mk];
+}
+function dLoadAllMonths(){
+  var seen = {}, d = new Date(START);
+  while(d <= END){
+    var mk = iso(d).slice(0,7);
+    if(!seen[mk]){ seen[mk] = 1; dLoadMonth(mk); }
+    d = new Date(d.getFullYear(), d.getMonth() + 1, 1);
+  }
+  return Object.keys(seen).length;
+}
+function dDay(isoDate){
+  var m = dLoadMonth(dMonthKey(isoDate));
+  return m[isoDate] || null;
+}
+/* Read, merge, write — only this day inside the month object. */
+function dSaveDay(isoDate, patch){
+  var mk = dMonthKey(isoDate), m = dLoadMonth(mk);
+  var cur = m[isoDate] || {};
+  for(var k in patch){
+    if(patch[k] === undefined || patch[k] === '' || patch[k] === null) delete cur[k];
+    else cur[k] = patch[k];
+  }
+  var goals = dGoals(cur);
+  cur.fuelMet = goals.fuel;
+  cur.moveMet = goals.move;
+  if(Object.keys(cur).length <= 2 && !cur.note) delete m[isoDate];
+  else m[isoDate] = cur;
+  dMonths[mk] = m;
+  /* A new weigh-in re-anchors the plan, so the projection has to rebuild. */
+  dPlanInvalidate();
+  return dSet('month:' + mk, m);
+}
+
+function dNum(v){ var n = Number(v); return isFinite(n) ? n : null; }
+function dHas(v){ return v !== null && v !== undefined && v !== ''; }
+
+/* new Date('2026-08-21') is UTC midnight, which iso() then renders as the
+   previous day anywhere west of Greenwich. Everything here is local-date
+   arithmetic, so parse local. */
+function dDate(isoDate){
+  var p = String(isoDate).split('-');
+  return new Date(+p[0], +p[1] - 1, +p[2]);
+}
+
+/* ---- units ---- */
+function dIsMetric(){ return dProfile && dProfile.unit === 'metric'; }
+function dToKg(w){ return dIsMetric() ? w : w * 0.45359237; }
+function dUnitLabel(){ return dIsMetric() ? 'kg' : 'lb'; }
+function dPerUnit(){ return dIsMetric() ? KCAL_PER_KG : KCAL_PER_LB; }
+
+/* ---- burn estimate, broken into visible parts ---- */
+/* Takes an explicit profile so the setup form can price a profile that hasn't
+   been saved yet; falls back to the live one. */
+function dBMR(weightUnits, p){
+  p = p || dProfile;
+  if(!p) return 0;
+  var w = weightUnits || p.startWeight || 0;
+  var kg = (p.unit === 'metric') ? w : w * 0.45359237;
+  var cm = p.heightCm || 0, age = p.age || 0;
+  var base = 10 * kg + 6.25 * cm - 5 * age;
+  return Math.round(p.sex === 'male' ? base + 5 : base - 161);
+}
+/* The activity level the plan and burn estimates assume. Uses the solved
+   target when there's no stated one, so the projection reflects the activity
+   the goal actually requires rather than defaulting to sedentary.
+   dSolve() computes its own baseline and never calls this, so there's no loop. */
+function dActivityMult(){
+  var t = dProfile ? (dProfile.activityTargetMin || 0) : 0;
+  if(!t) t = dActivityTarget() || 0;
+  if(t >= 90) return 1.55;
+  if(t >= 45) return 1.375;
+  if(t >= 20) return 1.2;
+  return 1.1;
+}
+/* Components, so the day card can show the breakdown rather than one opaque number. */
+function dBurnParts(isoDate){
+  var e = isoDate ? dDay(isoDate) : null;
+  var w = (e && dNum(e.weight)) || dLatestWeight() || (dProfile && dProfile.startWeight) || 0;
+  var bmr = dBMR(w);
+  var baseline = Math.round(bmr * (dActivityMult() - 1));
+  var ex = 0, hiitBurn = 0;
+  if(e){
+    var steps = dNum(e.steps) || 0;
+    var active = dNum(e.activeMinutes) || 0;
+    var strength = dNum(e.strengthMinutes) || 0;
+    var hiit = dNum(e.hiitMinutes) || 0;
+    /* Steps beyond what the activity multiplier already covers. */
+    ex += Math.round(steps * dToKg(w) * 0.00045);
+    ex += Math.round(active * 4);
+    ex += Math.round(strength * 5);
+    /* Intervals run roughly double steady work per minute. Deliberately not
+       counting an afterburn on top — the research puts it at a few dozen
+       calories, well inside the error bars on everything else here, and
+       inflating it would quietly licence eating the difference back. */
+    hiitBurn = Math.round(hiit * 10);
+  }
+  var manual = (e && dNum(e.manualBurn)) || 0;
+  var offset = (dProfile && dProfile.mode === 'calibrated' && dCal) ? (dCal.offset || 0) : 0;
+  var total = bmr + baseline + ex + hiitBurn + manual + offset;
+  return {bmr:bmr, baseline:baseline, exercise:ex, hiit:hiitBurn,
+          manual:manual, offset:offset, total:Math.max(total, bmr)};
+}
+
+function dLatestWeight(){
+  var best = null, bestDate = '';
+  for(var mk in dMonths){
+    var m = dMonths[mk];
+    for(var d in m){ if(dHas(m[d].weight) && d > bestDate){ bestDate = d; best = dNum(m[d].weight); } }
+  }
+  return best;
+}
+
+/* ---- the two goals ---- */
+function dGoals(e){
+  if(!e || !dProfile) return {fuel:false, move:false};
+  var intake = dNum(e.intake);
+  var range = dIntakeRange();
+  /* Under the range does not count. Eating too little is not the goal. */
+  var fuel = intake !== null && range && intake >= range.min && intake <= range.max;
+  /* HIIT counts toward movement at double weight, matching what it costs per
+     minute — 30 minutes of intervals is a real day's movement, and requiring
+     the full walking target on top of it would just punish the harder session. */
+  var active = dNum(e.activeMinutes);
+  var hiit = dNum(e.hiitMinutes);
+  var moveMinutes = (active === null && hiit === null) ? null : (active || 0) + (hiit || 0) * 2;
+  var actTarget = dActivityTarget();
+  var move = moveMinutes !== null && actTarget && moveMinutes >= actTarget;
+  return {fuel:!!fuel, move:!!move};
+}
+
+function dBalance(isoDate){
+  var e = dDay(isoDate);
+  if(!e || !dHas(e.intake)) return null;
+  return dBurnParts(isoDate).total - dNum(e.intake);
+}
+
+/* ---- grid tiers ---- */
+/* Capped at 100% on purpose: target and 3x target render identically, so the
+   grid can never reward a bigger deficit. */
+function dTier(isoDate){
+  var e = dDay(isoDate);
+  if(!e){
+    /* Nothing logged. Ahead of today, show it as planned rather than empty. */
+    return (isoDate > iso(new Date()) && dPlanFor(isoDate)) ? 'plan' : 'none';
+  }
+  var g = dGoals(e);
+  if(g.fuel && g.move) return 'run';
+  var bal = dBalance(isoDate);
+  if(bal === null) return 'neutral';
+  if(bal <= -250) return 'surplus';
+  if(bal < 250) return 'neutral';
+  var target = dTargetDeficit();
+  var pct = bal / target;
+  if(pct < 0.5) return 't1';
+  if(pct < 1) return 't2';
+  return 't3';
+}
+
+/* ---- the plan ----
+   A day-by-day projection across the challenge year. Weight loss is not linear:
+   as you get lighter your resting metabolism falls, so the same intake buys a
+   smaller deficit each week. This walks day by day and recomputes BMR from the
+   projected weight at every step, which is why late-year numbers here are lower
+   than a flat "deficit / 3500" projection would suggest.
+
+   Built once and cached; invalidated whenever the profile changes. */
+var dPlanCache = null;
+
+function dPlanInvalidate(){ dPlanCache = null; }
+
+function dBuildPlan(){
+  if(dPlanCache) return dPlanCache;
+  if(!dProfile || !dProfile.startWeight) return null;
+
+  var intake = dPlannedIntake();
+  if(intake === null) return null;
+
+  var mult = dActivityMult(), perUnit = dPerUnit();
+  var plan = {}, w = dProfile.startWeight;
+  var d = new Date(START), guard = 0;
+
+  /* Runs from day one to the end of the challenge, re-anchoring to each real
+     weigh-in as it passes. Two things matter here:
+
+     Each day's line is set by data from BEFORE that day, so a day is never
+     judged against a line derived from its own number — otherwise the day you
+     weighed in could never be off-plan, which would make the mark meaningless.
+
+     Re-anchoring as it goes means a heavy fortnight bends the line from that
+     point forward instead of leaving you chasing a projection made in July.
+     Logging a weight for a past day rewrites the line from that day on, which
+     is intended: the plan reflects what actually happened. */
+  while(d <= END && guard < 400){
+    var key = iso(d);
+    var bmr = dBMR(w);
+    var maint = bmr * mult + ((dProfile.mode === 'calibrated' && dCal) ? (dCal.offset || 0) : 0);
+    var deficit = maint - intake;
+    plan[key] = {weight: Math.round(w * 10) / 10, maintenance: Math.round(maint), deficit: Math.round(deficit)};
+
+    /* Tomorrow starts from what the scale actually said today, if it said
+       anything; otherwise from where the projection had us. */
+    var logged = dDay(key);
+    var actual = (logged && dHas(logged.weight)) ? dNum(logged.weight) : null;
+    w = (actual !== null ? actual : w) - deficit / perUnit;
+    if(dProfile.goalWeight && w < dProfile.goalWeight) w = dProfile.goalWeight;
+    d.setDate(d.getDate() + 1);
+    guard++;
+  }
+
+  /* Days before the anchor have no projection — they already happened. */
+  dPlanCache = plan;
+  return plan;
+}
+
+/* ---- the solver ----
+   Goal weight + goal date + an intake you can live with → the deficit and the
+   activity needed to get there. Everything else in the section derives from
+   this, so there is one place that decides what the targets are.
+
+   Averages over the whole span rather than using the start weight, because
+   resting metabolism falls as you get lighter: sizing activity off day one
+   would leave you short by the end. */
+function dSolve(p){
+  p = p || dProfile;
+  if(!p || !p.startWeight || !p.goalWeight || !p.goalDate) return null;
+
+  var days = Math.round((dDate(p.goalDate) - dDate(iso(new Date()))) / 864e5);
+  if(days <= 0) return null;
+
+  var toLose = p.startWeight - p.goalWeight;
+  var perUnit = (p.unit === 'metric') ? KCAL_PER_KG : KCAL_PER_LB;
+  var dailyDeficit = (toLose * perUnit) / days;
+
+  /* Mean weight across the span, so the burn requirement reflects the whole
+     journey rather than the heaviest day of it. */
+  var midWeight = (p.startWeight + p.goalWeight) / 2;
+  var bmr = dBMR(midWeight, p);
+  var bmrNow = dBMR(p.startWeight, p);
+
+  var intake = dHas(p.plannedIntake) ? dNum(p.plannedIntake) : null;
+  if(intake === null) return null;
+
+  var burnNeeded = intake + dailyDeficit;
+  /* Even a still day costs about a quarter above resting: digesting food,
+     standing up, moving around the house. Sedentary is 1.2x maintenance, and
+     the 0.2 is this. */
+  var baseline = bmr * 0.22;
+  var fromActivity = burnNeeded - bmr - baseline;
+
+  /* Brisk walking runs about 5 kcal/min at this kind of body weight, and roughly
+     110 steps a minute. Both are estimates, and both flatter a heavier body. */
+  var perMinute = 5;
+  var activeMinutes = fromActivity > 0 ? Math.round(fromActivity / perMinute) : 0;
+  var steps = activeMinutes * 110;
+
+  return {
+    days: days,
+    toLose: toLose,
+    dailyDeficit: Math.round(dailyDeficit),
+    weeklyRate: toLose / (days / 7),
+    intake: Math.round(intake),
+    bmr: Math.round(bmr),
+    bmrNow: Math.round(bmrNow),
+    baseline: Math.round(baseline),
+    burnNeeded: Math.round(burnNeeded),
+    fromActivity: Math.round(fromActivity),
+    activeMinutes: activeMinutes,
+    steps: steps,
+    /* Below resting metabolism is never a target we hand out. */
+    belowBMR: intake < bmrNow,
+    /* Past roughly two hours a day of deliberate activity this stops being a
+       plan and starts being a second job. */
+    activityUnrealistic: activeMinutes > 120
+  };
+}
+
+/* The intake band. Solved, not asked for — a window around the planned number,
+   because nobody lands on an exact calorie count and a target you can never hit
+   is a target that never ticks. */
+var INTAKE_BAND = 150;
+function dIntakeRange(p){
+  p = p || dProfile;
+  if(!p) return null;
+  if(dHas(p.intakeMin) && dHas(p.intakeMax)) return {min:p.intakeMin, max:p.intakeMax};
+  var s = dSolve(p);
+  if(!s) return null;
+  return {min: s.intake - INTAKE_BAND, max: s.intake + INTAKE_BAND};
+}
+
+/* The activity target. Solved unless overridden. */
+function dActivityTarget(p){
+  p = p || dProfile;
+  if(!p) return null;
+  if(dHas(p.activityTargetMin)) return dNum(p.activityTargetMin);
+  var s = dSolve(p);
+  return s ? s.activeMinutes : null;
+}
+
+/* The deficit target that tiers the grid. Derived from the goal, never typed. */
+function dTargetDeficit(p){
+  p = p || dProfile;
+  var s = dSolve(p);
+  return s ? Math.max(s.dailyDeficit, 1) : 500;
+}
+
+/* What the plan assumes you eat. Their own stated range midpoint, unless they
+   set an explicit planned intake in the forecast. */
+function dPlannedIntake(){
+  if(!dProfile) return null;
+  if(dHas(dProfile.plannedIntake)) return dNum(dProfile.plannedIntake);
+  var r = dIntakeRange();
+  if(r) return (r.min + r.max) / 2;
+  return null;
+}
+
+function dPlanFor(isoDate){
+  var plan = dBuildPlan();
+  return plan ? (plan[isoDate] || null) : null;
+}
+
+/* The burn target for a day: what the plan says you need to burn to run your
+   intended deficit at that day's projected weight. */
+function dBurnTarget(isoDate){
+  var p = dPlanFor(isoDate);
+  if(p) return p.maintenance;
+  if(!dProfile) return null;
+  var w = dLatestWeight() || dProfile.startWeight;
+  return w ? Math.round(dBMR(w) * dActivityMult()) : null;
+}
+
+/* ---- the three marks ----
+   Weight  — a logged weight at or below the plan's line for that day.
+   Fuel    — intake inside the stated range (unchanged).
+   Burn    — estimated burn reached the day's burn target.
+   Each is independent; any can succeed alone. */
+function dMarks(isoDate){
+  var e = dDay(isoDate);
+  var g = dGoals(e);
+  var out = {weight:false, fuel:g.fuel, burn:false, weightKnown:false};
+  if(!e) return out;
+
+  if(dHas(e.weight)){
+    out.weightKnown = true;
+    var p = dPlanFor(isoDate);
+    /* No plan line for this day (before the anchor, or no profile) → can't judge. */
+    if(p) out.weight = dNum(e.weight) <= p.weight;
+  }
+
+  var target = dBurnTarget(isoDate);
+  if(target){
+    var burn = dBurnParts(isoDate).total;
+    out.burn = burn >= target;
+  }
+  return out;
+}
+
+/* ---- calibration ---- */
+function dTrendWeight(isoDate){
+  var vals = [], d = dDate(isoDate);
+  for(var i = 0; i < 7; i++){
+    var e = dDay(iso(d));
+    if(e && dHas(e.weight)) vals.push(dNum(e.weight));
+    d.setDate(d.getDate() - 1);
+  }
+  if(!vals.length) return null;
+  return vals.reduce(function(a,b){ return a + b; }, 0) / vals.length;
+}
+
+function dRecalibrate(){
+  if(!dProfile || dProfile.mode !== 'calibrated') return null;
+  var today = iso(new Date());
+  if(dCal && dCal.at){
+    var days = Math.round((dDate(today) - dDate(dCal.at)) / 864e5);
+    if(days < CAL_WINDOW) return null;
+  }
+  var then = new Date(); then.setDate(then.getDate() - CAL_WINDOW);
+  var wNow = dTrendWeight(today), wThen = dTrendWeight(iso(then));
+  if(wNow === null || wThen === null) return null;
+
+  var predicted = 0, counted = 0, d = new Date(then);
+  while(iso(d) <= today){
+    var b = dBalance(iso(d));
+    if(b !== null){ predicted += b; counted++; }
+    d.setDate(d.getDate() + 1);
+  }
+  if(counted < 14) return null;
+
+  var actualKcal = (wThen - wNow) * dPerUnit();
+  var gap = predicted - actualKcal;
+  var perDay = gap / counted;
+  var step = Math.max(-CAL_STEP_CLAMP, Math.min(CAL_STEP_CLAMP, -perDay));
+  var prev = (dCal && dCal.offset) || 0;
+  var next = Math.max(-CAL_TOTAL_CLAMP, Math.min(CAL_TOTAL_CLAMP, prev + step));
+  var moved = Math.round(next - prev);
+  dCal = {offset: Math.round(next), at: today, moved: moved};
+  dSet('calibration', dCal);
+  dPlanInvalidate();
+  return dCal;
+}
+
+/* ---- profile ---- */
+function dReadProfileForm(){
+  return {
+    unit: $('dunit').value,
+    sex: $('dsex').value,
+    age: dNum($('dage').value),
+    heightCm: dNum($('dheight').value),
+    startWeight: dNum($('dstartw').value),
+    goalWeight: dNum($('dgoalw').value),
+    goalDate: $('dgoaldate').value || '',
+    plannedIntake: dNum($('dintake0').value),
+    proteinTarget: dNum($('dprotein').value),
+    mode: $('dmode').value
+  };
+}
+function dFillProfileForm(){
+  if(!dProfile) return;
+  $('dunit').value = dProfile.unit || 'imperial';
+  $('dsex').value = dProfile.sex || 'female';
+  if(dHas(dProfile.age)) $('dage').value = dProfile.age;
+  if(dHas(dProfile.heightCm)) $('dheight').value = dProfile.heightCm;
+  if(dHas(dProfile.startWeight)) $('dstartw').value = dProfile.startWeight;
+  if(dHas(dProfile.goalWeight)) $('dgoalw').value = dProfile.goalWeight;
+  $('dgoaldate').value = dProfile.goalDate || '';
+  if(dHas(dProfile.plannedIntake)) $('dintake0').value = dProfile.plannedIntake;
+  if(dHas(dProfile.proteinTarget)) $('dprotein').value = dProfile.proteinTarget;
+  $('dmode').value = dProfile.mode || 'basic';
+  dUnitLabels();
+}
+function dUnitLabels(){
+  var u = $('dunit').value === 'metric' ? '(kg)' : '(lb)';
+  $('du1').textContent = u;
+  $('du2').textContent = u;
+}
+/* Live readout under the setup form: what the goal actually demands. */
+function dDrawSolve(){
+  var host = $('dsolve');
+  if(!host) return;
+  var p = dReadProfileForm();
+  var s = dSolve(p);
+
+  if(!s){
+    host.innerHTML = '<p class="note" style="margin:.4rem 0 0">' +
+      'Fill in your weight, goal weight, goal date, and what you can eat &mdash; the deficit ' +
+      'and the activity needed get worked out from those.</p>';
+    return;
+  }
+
+  var u = (p.unit === 'metric') ? 'kg' : 'lb';
+  var html = '<div class="dsolved">';
+
+  if(s.belowBMR){
+    html += '<div class="dwarn"><b>That intake is below your resting metabolism.</b>' +
+      '<p class="note" style="margin:0">Eating ' + s.intake.toLocaleString() + ' is under the ' +
+      s.bmrNow.toLocaleString() + ' your body uses at rest. Put your comfortable intake at or above ' +
+      'that and let the date move instead.</p></div>';
+  } else if(s.toLose <= 0){
+    html += '<p class="note" style="margin:.4rem 0 0">Your goal weight is at or above where you are now, ' +
+      'so there is no deficit to run. The section still tracks intake, movement, and weight.</p>';
+  } else {
+    html += '<ul class="dbreak">' +
+      '<li><span>To lose</span><b>' + s.toLose.toFixed(1) + ' ' + u + ' in ' + s.days + ' days</b></li>' +
+      '<li><span>That is</span><b>' + s.weeklyRate.toFixed(2) + ' ' + u + ' a week</b></li>' +
+      '<li><span>Daily deficit needed</span><b>' + s.dailyDeficit.toLocaleString() + '</b></li>' +
+      '<li><span>Eating</span><b>' + s.intake.toLocaleString() + '</b></li>' +
+      '<li class="tot"><span>So you need to burn</span><b>' + s.burnNeeded.toLocaleString() + ' /day</b></li>' +
+      '</ul>' +
+      '<ul class="dbreak" style="margin-top:.9rem">' +
+      '<li><span>Resting metabolism</span><b>' + s.bmr.toLocaleString() + '</b></li>' +
+      '<li><span>Baseline living</span><b>' + s.baseline.toLocaleString() + '</b></li>' +
+      '<li class="tot"><span>Still to find from activity</span><b>' +
+        (s.fromActivity > 0 ? s.fromActivity.toLocaleString() : '0') + '</b></li>' +
+      '</ul>';
+
+    if(s.fromActivity > 0){
+      html += '<p class="dsolvenote">Roughly <b>' + s.activeMinutes + ' active minutes a day</b>, ' +
+        'or about <b>' + s.steps.toLocaleString() + ' steps</b>. Estimates &mdash; a heavier body ' +
+        'burns more per step, so this eases as you go.</p>';
+    } else {
+      html += '<p class="dsolvenote">Your resting burn alone covers this deficit. ' +
+        'Movement is still worth doing, but the maths does not demand it.</p>';
+    }
+
+    if(s.activityUnrealistic){
+      html += '<div class="dwarn"><b>That is a lot of activity to sustain.</b>' +
+        '<p class="note" style="margin:0">' + s.activeMinutes + ' minutes a day, every day, is more than ' +
+        'most people keep up for a year. Either move the goal date out or raise what you eat &mdash; ' +
+        'a plan you can actually follow beats a faster one you cannot.</p></div>';
+    }
+
+    html += '<p class="dsolvenote" style="opacity:.8">Your intake band works out as <b>' +
+      (s.intake - INTAKE_BAND).toLocaleString() + '&ndash;' + (s.intake + INTAKE_BAND).toLocaleString() +
+      '</b>. A day inside it counts as fuelled.</p>';
+  }
+
+  html += '</div>';
+  host.innerHTML = html;
+}
+
+function dModeNote(){
+  var m = $('dmode').value, t = '';
+  if(m === 'connected'){
+    t = 'Connected means you type in the numbers your watch or phone shows. This page can\'t ' +
+        'reach HealthKit or Google Fit &mdash; there is no automatic sync, and there won\'t be.';
+  } else if(m === 'calibrated'){
+    t = 'Every four weeks, your maintenance estimate shifts to close the gap between what the ' +
+        'equation predicted and what your 7-day trend weight actually did. One adjustment moves ' +
+        'at most 200 a day, and the running total is capped at 400.';
+  } else {
+    t = 'Basic uses the Mifflin-St Jeor equation and an activity multiplier. It is an estimate ' +
+        'and it can be off by a few hundred calories either way.';
+  }
+  $('dmodenote').innerHTML = t;
+}
+
+function dSaveProfile(){
+  var p = dReadProfileForm(), m = $('dprofmsg');
+  if(!p.age || !p.heightCm || !p.startWeight){
+    m.className = 'msg err';
+    m.textContent = 'Age, height, and current weight are needed to estimate anything.';
+    return;
+  }
+  if(!p.goalWeight || !p.goalDate){
+    m.className = 'msg err';
+    m.textContent = 'A goal weight and a goal date are what everything else is worked out from.';
+    return;
+  }
+  if(!dHas(p.plannedIntake)){
+    m.className = 'msg err';
+    m.textContent = 'Add the calories you can eat comfortably — the activity needed is solved from it.';
+    return;
+  }
+  dProfile = p;
+  dPlanInvalidate();
+  if(!dSet('profile', p)){
+    m.className = 'msg err';
+    m.textContent = 'This browser refused to save. Private browsing blocks it.';
+    return;
+  }
+  m.className = 'msg ok';
+  m.textContent = 'Saved on this device.';
+  dRender();
+}
+
+/* ---- day entry form ---- */
+function dDayForm(isoDate){
+  var e = dDay(isoDate) || {};
+  var parts = dBurnParts(isoDate);
+  var bal = dBalance(isoDate);
+  var u = dUnitLabel();
+
+  var line = '';
+  if(bal !== null && bal > 0) line = 'You moved ' + Math.round(bal).toLocaleString() + ' calories upstream today.';
+  else if(bal !== null && bal < 0) line = 'You ate ' + Math.abs(Math.round(bal)).toLocaleString() + ' calories above your estimated burn today.';
+  else if(bal !== null) line = 'You landed level with your estimated burn today.';
+
+  var mk = dMarks(isoDate), plan = dPlanFor(isoDate), burnTarget = dBurnTarget(isoDate);
+
+  var planLine = '';
+  if(plan){
+    var wNow = e && dHas(e.weight) ? dNum(e.weight) : null;
+    planLine = '<p class="dplanline">Plan for this day: <b>' + plan.weight + ' ' + u + '</b>';
+    if(wNow !== null){
+      var diff = wNow - plan.weight;
+      planLine += ' &middot; you logged ' + wNow + ' ' + u + ', ' +
+        (Math.abs(diff) < 0.05 ? 'right on the line' :
+          (diff < 0 ? '<span style="color:var(--scale)">' + Math.abs(diff).toFixed(1) + ' ' + u + ' ahead</span>'
+                    : '<span style="color:var(--roe)">' + diff.toFixed(1) + ' ' + u + ' behind</span>'));
+    }
+    planLine += '</p>';
+  }
+
+  return '' +
+    '<h4>' + esc(isoDate) + '</h4>' +
+    (line ? '<p class="note" style="margin:0 0 .5rem;color:var(--silt)">' + esc(line) + '</p>' : '') +
+    planLine +
+    '<div class="dmarks" style="margin-bottom:1.1rem">' +
+      '<span class="dmark weight ' + (mk.weight ? 'on' : '') + '"><i></i>Weight ' +
+        (mk.weight ? 'on plan' : (mk.weightKnown ? 'above plan' : 'not weighed')) + '</span>' +
+      '<span class="dmark fuel ' + (mk.fuel ? 'on' : '') + '"><i></i>Intake ' + (mk.fuel ? 'met' : 'not met') + '</span>' +
+      '<span class="dmark burn ' + (mk.burn ? 'on' : '') + '"><i></i>Burn ' + (mk.burn ? 'met' : 'not met') +
+        (burnTarget ? ' <span style="opacity:.7">(' + burnTarget.toLocaleString() + ')</span>' : '') + '</span>' +
+    '</div>' +
+    '<div class="grid">' +
+      '<div><label for="dintake">Calories eaten</label><input id="dintake" type="number" min="0" step="10" value="' + (dHas(e.intake) ? e.intake : '') + '"></div>' +
+      '<div><label for="dweight">Weight (' + u + ')</label><input id="dweight" type="number" min="0" step="0.1" value="' + (dHas(e.weight) ? e.weight : '') + '"></div>' +
+      '<div><label for="dsteps">Steps</label><input id="dsteps" type="number" min="0" step="100" value="' + (dHas(e.steps) ? e.steps : '') + '"></div>' +
+      '<div><label for="dactive">Active minutes</label><input id="dactive" type="number" min="0" step="5" value="' + (dHas(e.activeMinutes) ? e.activeMinutes : '') + '"></div>' +
+      '<div><label for="dstrength">Strength minutes</label><input id="dstrength" type="number" min="0" step="5" value="' + (dHas(e.strengthMinutes) ? e.strengthMinutes : '') + '"></div>' +
+      '<div><label for="dhiit">HIIT minutes</label><input id="dhiit" type="number" min="0" step="5" value="' + (dHas(e.hiitMinutes) ? e.hiitMinutes : '') + '"></div>' +
+      '<div><label for="dprot">Protein (g)</label><input id="dprot" type="number" min="0" step="5" value="' + (dHas(e.protein) ? e.protein : '') + '"></div>' +
+      '<div><label for="dsleep">Sleep (minutes)</label><input id="dsleep" type="number" min="0" step="15" value="' + (dHas(e.sleepMinutes) ? e.sleepMinutes : '') + '"></div>' +
+      '<div><label for="dmanual">Manual burn override</label><input id="dmanual" type="number" min="0" step="25" value="' + (dHas(e.manualBurn) ? e.manualBurn : '') + '"></div>' +
+      '<div class="full"><label for="dnote">Note</label><textarea id="dnote">' + esc(e.note || '') + '</textarea></div>' +
+    '</div>' +
+    '<ul class="dbreak">' +
+      '<li><span>Resting metabolism</span><b>' + parts.bmr.toLocaleString() + '</b></li>' +
+      '<li><span>Baseline movement</span><b>' + parts.baseline.toLocaleString() + '</b></li>' +
+      '<li><span>Logged exercise</span><b>' + parts.exercise.toLocaleString() + '</b></li>' +
+      (parts.hiit ? '<li><span>HIIT</span><b>' + parts.hiit.toLocaleString() + '</b></li>' : '') +
+      (parts.manual ? '<li><span>Manual adjustment</span><b>' + parts.manual.toLocaleString() + '</b></li>' : '') +
+      (parts.offset ? '<li><span>Calibration offset</span><b>' + (parts.offset > 0 ? '+' : '') + parts.offset.toLocaleString() + '</b></li>' : '') +
+      '<li class="tot"><span>Estimated burn</span><b>' + parts.total.toLocaleString() + '</b></li>' +
+    '</ul>' +
+    '<button id="dsaveday" type="button">Save day</button>' +
+    '<div class="msg" id="ddaymsg"></div>';
+}
+
+function dBindDayForm(isoDate){
+  var btn = $('dsaveday');
+  if(!btn) return;
+  btn.onclick = function(){
+    var ok = dSaveDay(isoDate, {
+      intake: dNum($('dintake').value),
+      weight: dNum($('dweight').value),
+      steps: dNum($('dsteps').value),
+      activeMinutes: dNum($('dactive').value),
+      strengthMinutes: dNum($('dstrength').value),
+      hiitMinutes: dNum($('dhiit').value),
+      protein: dNum($('dprot').value),
+      sleepMinutes: dNum($('dsleep').value),
+      manualBurn: dNum($('dmanual').value),
+      note: $('dnote').value.trim()
+    });
+    var m = $('ddaymsg');
+    m.className = ok ? 'msg ok' : 'msg err';
+    m.textContent = ok ? 'Day saved on this device.' : 'This browser refused to save.';
+    if(ok){ dRecalibrate(); dRender(); }
+  };
+}
+
+/* ---- the run grid ---- */
+function dDrawRun(){
+  var today = iso(new Date()), head = '', cells = '';
+  var start = new Date(START);
+  start.setDate(start.getDate() - start.getDay());   /* back to Sunday */
+  var weeks = Math.ceil((END - start) / 864e5 / 7) + 1;
+  var lastMonth = -1;
+
+  for(var w = 0; w < weeks; w++){
+    var wkStart = new Date(start);
+    wkStart.setDate(wkStart.getDate() + w * 7);
+    var label = '';
+    if(wkStart.getMonth() !== lastMonth && wkStart <= END){
+      lastMonth = wkStart.getMonth();
+      label = wkStart.toLocaleString(undefined, {month:'short'});
+    }
+    head += '<div>' + label + '</div>';
+
+    cells += '<div style="display:contents">';
+    for(var dow = 0; dow < 7; dow++){
+      var d = new Date(wkStart);
+      d.setDate(d.getDate() + dow);
+      var key = iso(d), i = dayIndex(d);
+      if(i < 0 || i > TOTAL){ cells += '<div class="dcell out"></div>'; continue; }
+      var tier = dTier(key);
+      var cls = 'dcell ' + tier;
+      if(key === today) cls += ' today';
+      if(key === dSel) cls += ' sel';
+      var e = dDay(key), title = key, plan = dPlanFor(key);
+      if(e){
+        var bal = dBalance(key);
+        title = key + (bal !== null ? ' — est. ' + Math.round(bal).toLocaleString() + ' balance' : ' — logged');
+        if(plan) title += ' · plan ' + plan.weight + ' ' + dUnitLabel();
+      } else if(plan){
+        title = key + ' — planned ' + plan.weight + ' ' + dUnitLabel();
+      }
+      cells += '<button type="button" class="' + cls + '" title="' + esc(title) + '" data-dd="' + key + '"></button>';
+    }
+    cells += '</div>';
+  }
+
+  $('drunhead').innerHTML = head;
+  $('drungrid').innerHTML = cells;
+
+  var btns = $('drungrid').querySelectorAll('[data-dd]');
+  for(var b = 0; b < btns.length; b++){
+    btns[b].onclick = function(){ dSel = this.getAttribute('data-dd'); dRender(); };
+  }
+
+  $('dlegend').innerHTML =
+    '<span><i style="background:var(--scale)"></i>Salmon run — both goals</span>' +
+    '<span><i style="background:var(--current-deep)"></i>At target</span>' +
+    '<span><i style="background:var(--current-mid)"></i>Part way</span>' +
+    '<span><i style="background:var(--current-pale)"></i>Started</span>' +
+    '<span><i style="background:rgba(168,181,174,.32)"></i>Around maintenance</span>' +
+    '<span><i style="background:var(--roe)"></i>Surplus</span>' +
+    '<span><i style="background:rgba(95,201,232,.13)"></i>Planned, still ahead</span>' +
+    '<span><i style="background:rgba(127,182,168,.05)"></i>No data</span>';
+}
+
+/* ---- weekly rollup ---- */
+function dDrawWeeks(){
+  var rows = [], today = iso(new Date());
+  var start = new Date(START);
+  start.setDate(start.getDate() - start.getDay());
+
+  for(var w = 0; w < 60; w++){
+    var wkStart = new Date(start);
+    wkStart.setDate(wkStart.getDate() + w * 7);
+    if(wkStart > END) break;
+    var wkEnd = new Date(wkStart); wkEnd.setDate(wkEnd.getDate() + 6);
+
+    var deficit = 0, active = 0, proteinDays = 0, any = false;
+    var firstW = null, lastW = null, d = new Date(wkStart);
+    for(var i = 0; i < 7; i++){
+      var key = iso(d), e = dDay(key);
+      if(e){
+        any = true;
+        var b = dBalance(key);
+        if(b !== null) deficit += b;
+        active += (dNum(e.activeMinutes) || 0) + (dNum(e.hiitMinutes) || 0);
+        if(dProfile && dProfile.proteinTarget && (dNum(e.protein) || 0) >= dProfile.proteinTarget) proteinDays++;
+        if(dHas(e.weight)){ if(firstW === null) firstW = dNum(e.weight); lastW = dNum(e.weight); }
+      }
+      d.setDate(d.getDate() + 1);
+    }
+    if(!any) continue;
+
+    var perUnit = dPerUnit();
+    var theoretical = deficit / perUnit;
+    var scale = (firstW !== null && lastW !== null) ? (lastW - firstW) : null;
+    var tNow = dTrendWeight(iso(wkEnd > new Date() ? new Date() : wkEnd));
+    var tThen = dTrendWeight(iso(wkStart));
+    var trend = (tNow !== null && tThen !== null) ? (tNow - tThen) : null;
+    var u = dUnitLabel();
+
+    rows.push('<div class="dwrow">' +
+      '<div><div class="k">Week of</div><div class="v">' + iso(wkStart).slice(5) + '</div></div>' +
+      '<div><div class="k">Est. deficit</div><div class="v">' + Math.round(deficit).toLocaleString() + '</div></div>' +
+      '<div><div class="k">Theoretical</div><div class="v">' + (theoretical >= 0 ? '−' : '+') + Math.abs(theoretical).toFixed(2) + ' ' + u + '</div></div>' +
+      '<div><div class="k">Scale</div><div class="v">' + (scale === null ? '&mdash;' : (scale > 0 ? '+' : '−') + Math.abs(scale).toFixed(1) + ' ' + u) + '</div></div>' +
+      '<div><div class="k">Trend</div><div class="v">' + (trend === null ? '&mdash;' : (trend > 0 ? '+' : '−') + Math.abs(trend).toFixed(2) + ' ' + u) + '</div></div>' +
+      '<div><div class="k">Active min</div><div class="v">' + active.toLocaleString() + '</div></div>' +
+      '<div><div class="k">Protein days</div><div class="v">' + proteinDays + '</div></div>' +
+    '</div>');
+  }
+
+  $('dweeklist').innerHTML = rows.length ? rows.reverse().join('') :
+    '<p class="note" style="margin:0">Log a day above and the first week shows up here.</p>';
+}
+
+/* ---- river route ----
+   Weight checkpoints come from private data. Skill checkpoints read myMiles,
+   the same shared state the goal board writes — one source of truth. */
+function dDrawRoute(){
+  var loggedDays = 0, strengthSessions = 0, first7 = false, run = 0;
+  var d = new Date(START);
+  while(d <= END){
+    var e = dDay(iso(d));
+    if(e){
+      loggedDays++;
+      run++;
+      if(run >= 7) first7 = true;
+      if((dNum(e.strengthMinutes) || 0) > 0) strengthSessions++;
+    } else run = 0;
+    d.setDate(d.getDate() + 1);
+  }
+
+  var startW = dProfile && dProfile.startWeight, goalW = dProfile && dProfile.goalWeight;
+  var nowW = dLatestWeight();
+  var lost = (startW !== null && startW !== undefined && nowW !== null) ? (startW - nowW) : null;
+  var firstFive = lost !== null && lost >= (dIsMetric() ? 2.27 : 5);
+  var halfway = (lost !== null && startW && goalW && startW > goalW) ? (lost >= (startW - goalW) / 2) : false;
+
+  var stops = [
+    {n:'Launch point', t:'First 7 days', hit:first7},
+    {n:'First rapids', t:'First 5 ' + dUnitLabel() + ' down', hit:firstFive},
+    {n:'Stronger current', t:'25 strength sessions', hit:strengthSessions >= 25},
+    {n:'Halfway falls', t:'Halfway to goal weight', hit:halfway},
+    {n:'Ladder construction', t:'Kip swing under control', hit:!!myMiles['4.0']},
+    {n:'First hang', t:'Dead hang 60 seconds', hit:!!myMiles['1.6']},
+    {n:'First pull', t:'First strict pull-up', hit:!!myMiles['2.12']},
+    {n:'First leap', t:'Bar-hop one rung', hit:!!myMiles['4.2']},
+    {n:'Spawning grounds', t:'Five rungs, done', hit:!!myMiles['4.7']}
+  ];
+
+  $('droute').innerHTML = stops.map(function(s){
+    return '<div class="dstop ' + (s.hit ? 'hit' : '') + '">' +
+      '<div class="n">' + esc(s.n) + '</div><div class="t">' + esc(s.t) + '</div></div>';
+  }).join('');
+}
+
+/* ---- summary ---- */
+function dDrawSummary(){
+  var today = iso(new Date()), parts = dBurnParts(today);
+  var bal = dBalance(today), nowW = dLatestWeight();
+  var u = dUnitLabel();
+  var calLine = '';
+  if(dProfile.mode === 'calibrated' && dCal && dCal.moved){
+    var dir = dCal.moved < 0 ? 'down' : 'up';
+    calLine = 'Your maintenance estimate moved ' + dir + ' ' + Math.abs(dCal.moved).toLocaleString() +
+              ' to ' + parts.total.toLocaleString() + ' based on the last four weeks.';
+  }
+
+  $('dsummary').innerHTML =
+    '<div><div class="k">Est. burn today</div><div class="v tnum">' + parts.total.toLocaleString() + '<span> est.</span></div></div>' +
+    '<div><div class="k">Today\'s balance</div><div class="v tnum">' + (bal === null ? '&mdash;' : Math.round(bal).toLocaleString()) + '</div></div>' +
+    '<div><div class="k">Latest weight</div><div class="v tnum">' + (nowW === null ? '&mdash;' : nowW + ' ') + '<span>' + (nowW === null ? '' : u) + '</span></div></div>' +
+    '<div><div class="k">Deficit needed</div><div class="v tnum">' + dTargetDeficit().toLocaleString() + '<span> /day</span></div></div>';
+
+  $('drunsub').textContent = calLine || 'All burn figures are estimates.';
+  dDrawPlanStrip();
+}
+
+/* A short read on where the plan says you'll be, and how today's marks landed. */
+function dDrawPlanStrip(){
+  var host = $('dplan');
+  if(!host) return;
+  var plan = dBuildPlan();
+  if(!plan){
+    host.innerHTML = '<p class="note" style="margin:0">Add your intake range and goal weight to see a projected plan for the year.</p>';
+    return;
+  }
+
+  var u = dUnitLabel(), today = iso(new Date());
+  var intake = dPlannedIntake();
+  var endKey = iso(END), endPlan = plan[endKey];
+  var goalHit = '';
+  if(dProfile.goalWeight){
+    for(var k in plan){ if(plan[k].weight <= dProfile.goalWeight){ if(!goalHit || k < goalHit) goalHit = k; } }
+  }
+
+  var mk = dMarks(today);
+  var todayPlan = plan[today];
+
+  host.innerHTML =
+    '<div class="dsum" style="border:none;padding:0;margin:0 0 1.1rem">' +
+      '<div><div class="k">Plan assumes</div><div class="v tnum">' + Math.round(intake).toLocaleString() + '<span> /day</span></div></div>' +
+      '<div><div class="k">Today\'s line</div><div class="v tnum">' + (todayPlan ? todayPlan.weight + ' ' : '&mdash;') + '<span>' + (todayPlan ? u : '') + '</span></div></div>' +
+      '<div><div class="k">' + (goalHit ? 'Goal weight on' : 'By 22 Jul 2027') + '</div><div class="v tnum" style="font-size:1.15rem">' +
+        (goalHit ? esc(goalHit) : (endPlan ? endPlan.weight + ' ' + u : '&mdash;')) + '</div></div>' +
+    '</div>' +
+    '<div class="dmarks">' +
+      '<span class="dmark weight ' + (mk.weight ? 'on' : '') + '"><i></i>Weight ' + (mk.weight ? 'on plan' : (mk.weightKnown ? 'above plan' : 'not weighed')) + '</span>' +
+      '<span class="dmark fuel ' + (mk.fuel ? 'on' : '') + '"><i></i>Intake ' + (mk.fuel ? 'met' : 'not met') + '</span>' +
+      '<span class="dmark burn ' + (mk.burn ? 'on' : '') + '"><i></i>Burn ' + (mk.burn ? 'met' : 'not met') + '</span>' +
+    '</div>' +
+    '<p class="note" style="margin-top:.9rem">' +
+      'The line falls more slowly later in the year on purpose &mdash; as you get lighter your ' +
+      'resting metabolism drops, so the same intake buys a smaller deficit. It re-anchors to your ' +
+      'most recent weigh-in, so a heavy week moves the line rather than breaking it. It\'s a projection, not a promise.' +
+    '</p>';
+}
+
+/* ---- forecast ---- */
+function dRunForecast(){
+  var cw = dNum($('fcw').value), gw = dNum($('fgw').value);
+  var gd = $('fgd').value, intake = dNum($('fintake').value);
+  var mult = Number($('fact').value) || 1.375;
+  var out = $('dfcout'), u = dUnitLabel();
+
+  if(cw === null || gw === null || !gd){
+    out.innerHTML = '<p class="note">Fill in current weight, goal weight, and a goal date to see the numbers.</p>';
+    return;
+  }
+
+  var bmrNow = dBMR(cw);
+  var days = Math.round((dDate(gd) - dDate(iso(new Date()))) / 864e5);
+  if(days <= 0){
+    out.innerHTML = '<p class="note">That date is today or in the past. Pick a date further out.</p>';
+    return;
+  }
+
+  var toLose = cw - gw, perUnit = dPerUnit();
+  var weeklyRate = toLose / (days / 7);
+  var dailyDeficit = (toLose * perUnit) / days;
+  var maintNow = Math.round(bmrNow * mult);
+  var requiredIntake = Math.round(maintNow - dailyDeficit);
+
+  var html = '';
+
+  /* The floor: never propose eating below estimated BMR. Report the date as
+     unreachable and show the earliest one that is, rather than a smaller number. */
+  if(toLose > 0 && requiredIntake < bmrNow){
+    var earliest = dEarliestSafeDate(cw, gw, mult);
+    html += '<div class="dwarn">' +
+      '<b>That date isn\'t reachable at a safe rate.</b>' +
+      '<p class="note" style="margin:0">Hitting ' + gw + ' ' + u + ' by ' + esc(gd) + ' would mean eating about ' +
+      requiredIntake.toLocaleString() + ' a day, which is below your estimated resting metabolism of ' +
+      bmrNow.toLocaleString() + '. We won\'t suggest a number under that. ' +
+      (earliest ? 'Eating at your resting metabolism and keeping your activity up, the earliest you\'d reach it is around <b style="color:var(--silt)">' + esc(earliest) + '</b>.' :
+                  'At a safe intake this goal weight isn\'t reachable inside the challenge year.') +
+      '</p></div>';
+  } else if(toLose <= 0){
+    html += '<p class="note">Your goal weight is at or above your current weight, so there\'s no deficit to run.</p>';
+  } else {
+    html += '<div class="dsum" style="border:none;padding:0;margin:1rem 0 0">' +
+      '<div><div class="k">Required rate</div><div class="v tnum">' + weeklyRate.toFixed(2) + '<span> ' + u + '/wk</span></div></div>' +
+      '<div><div class="k">Avg daily deficit</div><div class="v tnum">' + Math.round(dailyDeficit).toLocaleString() + '</div></div>' +
+      '<div><div class="k">Est. maintenance</div><div class="v tnum">' + maintNow.toLocaleString() + '<span> est.</span></div></div>' +
+      '</div>';
+    if(intake !== null){
+      html += '<p class="note">At ' + intake.toLocaleString() + ' a day you\'d average about ' +
+              Math.round(maintNow - intake).toLocaleString() + ' of deficit, before your maintenance falls with your weight.</p>' +
+              '<button id="dusenintake" class="ghost" type="button">Use this intake for my plan</button>';
+    }
+  }
+
+  var scenarios = [
+    {n:'Sustainable', pct:0.005, note:'Slow enough to hold onto muscle.'},
+    {n:'Accelerated', pct:0.0095, note:'Faster, harder to stick to.'},
+    {n:'Recovery week', pct:0, note:'Eat at maintenance. Useful every few weeks.'}
+  ];
+  html += '<table class="dscen"><thead><tr><th>Scenario</th><th>Est. rate</th><th>Roughly</th></tr></thead><tbody>' +
+    scenarios.map(function(s){
+      var rate = cw * s.pct;
+      return '<tr><td>' + s.n + '</td><td>' + (rate ? rate.toFixed(2) + ' ' + u + '/wk' : 'hold') + '</td><td>' + s.note + '</td></tr>';
+    }).join('') + '</tbody></table>' +
+    '<p class="note">Rates are estimates and recompute as you get lighter &mdash; maintenance and the burn ' +
+    'per step both fall with weight, so a flat projection drifts badly over a year.</p>';
+
+  out.innerHTML = html;
+
+  var useBtn = $('dusenintake');
+  if(useBtn){
+    useBtn.onclick = function(){
+      dProfile.plannedIntake = intake;
+      dSet('profile', dProfile);
+      dPlanInvalidate();
+      dRender();
+    };
+  }
+}
+
+/* Walks forward week by week, recomputing BMR as weight drops. */
+function dEarliestSafeDate(cw, gw, mult){
+  var w = cw, d = new Date(), perUnit = dPerUnit(), guard = 0;
+  while(w > gw && guard < 520){
+    var bmr = dBMR(w);
+    var maint = bmr * mult;
+    var weeklyDeficit = (maint - bmr) * 7;      /* floor: intake never below BMR */
+    if(weeklyDeficit <= 0) return null;
+    w -= weeklyDeficit / perUnit;
+    d.setDate(d.getDate() + 7);
+    guard++;
+  }
+  return w <= gw ? iso(d) : null;
+}
+
+/* ---- backup ---- */
+function dExport(){
+  var payload = {kind:'year-of-the-salmon-deficit', version:1, profile:dProfile, months:dMonths, calibration:dCal};
+  var blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'deficit-map-' + iso(new Date()) + '.json';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+  dSet('lastBackup', iso(new Date()));
+}
+function dImport(){
+  var input = document.createElement('input');
+  input.type = 'file'; input.accept = 'application/json,.json';
+  input.onchange = function(){
+    var f = input.files && input.files[0];
+    if(!f) return;
+    var r = new FileReader();
+    r.onload = function(){
+      try{
+        var data = JSON.parse(r.result);
+        if(!data || data.kind !== 'year-of-the-salmon-deficit') throw new Error('not a deficit map backup');
+        if(!confirm('Restore this backup? It replaces the deficit map data on this device.')) return;
+        if(data.profile){ dProfile = data.profile; dSet('profile', dProfile); }
+        if(data.calibration){ dCal = data.calibration; dSet('calibration', dCal); }
+        dMonths = data.months || {};
+        for(var mk in dMonths) dSet('month:' + mk, dMonths[mk]);
+        dPlanInvalidate();
+        dRender();
+      }catch(err){
+        alert('That file didn\'t look like a deficit map backup.');
+      }
+    };
+    r.readAsText(f);
+  };
+  input.click();
+}
+
+/* ---- render ---- */
+function dRender(){
+  var hasProfile = !!dProfile;
+  $('dsetup').classList.toggle('hide', hasProfile);
+  $('dmain').classList.toggle('hide', !hasProfile);
+  if(!hasProfile) return;
+
+  dDrawSummary();
+  dDrawRun();
+  dDrawRoute();
+  dDrawWeeks();
+
+  if(!dSel) dSel = iso(new Date() > END ? END : (new Date() < START ? START : new Date()));
+  $('dday').innerHTML = dDayForm(dSel);
+  dBindDayForm(dSel);
+
+  if($('fcw').value === '') $('fcw').value = dLatestWeight() || dProfile.startWeight || '';
+  if($('fgw').value === '' && dHas(dProfile.goalWeight)) $('fgw').value = dProfile.goalWeight;
+  if($('fgd').value === '' && dProfile.goalDate) $('fgd').value = dProfile.goalDate;
+}
+
+function deficitBoot(){
+  dProfile = dGet('profile', null);
+  dCal = dGet('calibration', null);
+  dLoadAllMonths();
+
+  $('dsaveprofile').onclick = dSaveProfile;
+  $('dunit').onchange = function(){ dUnitLabels(); dDrawSolve(); };
+  $('dmode').onchange = dModeNote;
+
+  /* The solve panel updates as you type, so the cost of a goal date is visible
+     while you're choosing it rather than after you commit. */
+  ['dage','dheight','dstartw','dgoalw','dgoaldate','dintake0','dsex'].forEach(function(id){
+    var el = $(id);
+    if(!el) return;
+    el.oninput = dDrawSolve;
+    el.onchange = dDrawSolve;
+  });
+  $('dforecast').onclick = dRunForecast;
+  $('dexport').onclick = dExport;
+  $('dimport').onclick = dImport;
+  $('deditprofile').onclick = function(){
+    dFillProfileForm();
+    $('dsetup').classList.remove('hide');
+    $('dcancelprofile').classList.remove('hide');
+    $('dsetup').scrollIntoView({behavior:'smooth', block:'start'});
+  };
+  $('dcancelprofile').onclick = function(){
+    $('dcancelprofile').classList.add('hide');
+    $('dprofmsg').textContent = '';
+    dRender();
+  };
+
+  dModeNote();
+  if(dProfile) dFillProfileForm();
+  dDrawSolve();
+  dRecalibrate();
+  dRender();
 }
 
 /* Returning visitors skip the gate. */
