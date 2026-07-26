@@ -1890,20 +1890,27 @@ function dBurnParts(isoDate){
   var w = (e && dNum(e.weight)) || dLatestWeight() || (dProfile && dProfile.startWeight) || 0;
   var bmr = dBMR(w);
   var baseline = Math.round(bmr * (dActivityMult() - 1));
-  var ex = 0;
+  var ex = 0, hiitBurn = 0;
   if(e){
     var steps = dNum(e.steps) || 0;
     var active = dNum(e.activeMinutes) || 0;
     var strength = dNum(e.strengthMinutes) || 0;
+    var hiit = dNum(e.hiitMinutes) || 0;
     /* Steps beyond what the activity multiplier already covers. */
     ex += Math.round(steps * dToKg(w) * 0.00045);
     ex += Math.round(active * 4);
     ex += Math.round(strength * 5);
+    /* Intervals run roughly double steady work per minute. Deliberately not
+       counting an afterburn on top — the research puts it at a few dozen
+       calories, well inside the error bars on everything else here, and
+       inflating it would quietly licence eating the difference back. */
+    hiitBurn = Math.round(hiit * 10);
   }
   var manual = (e && dNum(e.manualBurn)) || 0;
   var offset = (dProfile && dProfile.mode === 'calibrated' && dCal) ? (dCal.offset || 0) : 0;
-  var total = bmr + baseline + ex + manual + offset;
-  return {bmr:bmr, baseline:baseline, exercise:ex, manual:manual, offset:offset, total:Math.max(total, bmr)};
+  var total = bmr + baseline + ex + hiitBurn + manual + offset;
+  return {bmr:bmr, baseline:baseline, exercise:ex, hiit:hiitBurn,
+          manual:manual, offset:offset, total:Math.max(total, bmr)};
 }
 
 function dLatestWeight(){
@@ -1922,9 +1929,14 @@ function dGoals(e){
   var range = dIntakeRange();
   /* Under the range does not count. Eating too little is not the goal. */
   var fuel = intake !== null && range && intake >= range.min && intake <= range.max;
+  /* HIIT counts toward movement at double weight, matching what it costs per
+     minute — 30 minutes of intervals is a real day's movement, and requiring
+     the full walking target on top of it would just punish the harder session. */
   var active = dNum(e.activeMinutes);
+  var hiit = dNum(e.hiitMinutes);
+  var moveMinutes = (active === null && hiit === null) ? null : (active || 0) + (hiit || 0) * 2;
   var actTarget = dActivityTarget();
-  var move = active !== null && actTarget && active >= actTarget;
+  var move = moveMinutes !== null && actTarget && moveMinutes >= actTarget;
   return {fuel:!!fuel, move:!!move};
 }
 
@@ -2387,6 +2399,7 @@ function dDayForm(isoDate){
       '<div><label for="dsteps">Steps</label><input id="dsteps" type="number" min="0" step="100" value="' + (dHas(e.steps) ? e.steps : '') + '"></div>' +
       '<div><label for="dactive">Active minutes</label><input id="dactive" type="number" min="0" step="5" value="' + (dHas(e.activeMinutes) ? e.activeMinutes : '') + '"></div>' +
       '<div><label for="dstrength">Strength minutes</label><input id="dstrength" type="number" min="0" step="5" value="' + (dHas(e.strengthMinutes) ? e.strengthMinutes : '') + '"></div>' +
+      '<div><label for="dhiit">HIIT minutes</label><input id="dhiit" type="number" min="0" step="5" value="' + (dHas(e.hiitMinutes) ? e.hiitMinutes : '') + '"></div>' +
       '<div><label for="dprot">Protein (g)</label><input id="dprot" type="number" min="0" step="5" value="' + (dHas(e.protein) ? e.protein : '') + '"></div>' +
       '<div><label for="dsleep">Sleep (minutes)</label><input id="dsleep" type="number" min="0" step="15" value="' + (dHas(e.sleepMinutes) ? e.sleepMinutes : '') + '"></div>' +
       '<div><label for="dmanual">Manual burn override</label><input id="dmanual" type="number" min="0" step="25" value="' + (dHas(e.manualBurn) ? e.manualBurn : '') + '"></div>' +
@@ -2396,6 +2409,7 @@ function dDayForm(isoDate){
       '<li><span>Resting metabolism</span><b>' + parts.bmr.toLocaleString() + '</b></li>' +
       '<li><span>Baseline movement</span><b>' + parts.baseline.toLocaleString() + '</b></li>' +
       '<li><span>Logged exercise</span><b>' + parts.exercise.toLocaleString() + '</b></li>' +
+      (parts.hiit ? '<li><span>HIIT</span><b>' + parts.hiit.toLocaleString() + '</b></li>' : '') +
       (parts.manual ? '<li><span>Manual adjustment</span><b>' + parts.manual.toLocaleString() + '</b></li>' : '') +
       (parts.offset ? '<li><span>Calibration offset</span><b>' + (parts.offset > 0 ? '+' : '') + parts.offset.toLocaleString() + '</b></li>' : '') +
       '<li class="tot"><span>Estimated burn</span><b>' + parts.total.toLocaleString() + '</b></li>' +
@@ -2414,6 +2428,7 @@ function dBindDayForm(isoDate){
       steps: dNum($('dsteps').value),
       activeMinutes: dNum($('dactive').value),
       strengthMinutes: dNum($('dstrength').value),
+      hiitMinutes: dNum($('dhiit').value),
       protein: dNum($('dprot').value),
       sleepMinutes: dNum($('dsleep').value),
       manualBurn: dNum($('dmanual').value),
@@ -2506,7 +2521,7 @@ function dDrawWeeks(){
         any = true;
         var b = dBalance(key);
         if(b !== null) deficit += b;
-        active += dNum(e.activeMinutes) || 0;
+        active += (dNum(e.activeMinutes) || 0) + (dNum(e.hiitMinutes) || 0);
         if(dProfile && dProfile.proteinTarget && (dNum(e.protein) || 0) >= dProfile.proteinTarget) proteinDays++;
         if(dHas(e.weight)){ if(firstW === null) firstW = dNum(e.weight); lastW = dNum(e.weight); }
       }
