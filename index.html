@@ -281,6 +281,13 @@ h2{
 .dmark.on.burn i{background:var(--t-hang);border-color:var(--t-hang)}
 .dmark.on.weight i{background:var(--t-lad);border-color:var(--t-lad)}
 
+.dsolved{margin-top:1.3rem;padding-top:1.2rem;border-top:1px solid var(--line)}
+.dsolvenote{
+  font-family:system-ui,-apple-system,sans-serif;font-size:.78rem;color:var(--bone);
+  margin-top:.85rem;line-height:1.6;
+}
+.dsolvenote b{font-weight:400;color:var(--silt)}
+
 .dplanline{
   font-family:system-ui,-apple-system,sans-serif;font-size:.78rem;color:var(--bone);
   margin:0 0 1rem;line-height:1.6;
@@ -719,11 +726,8 @@ select:focus{outline:2px solid var(--roe);outline-offset:1px}
         <div><label for="dstartw">Current weight <span id="du1">(lb)</span></label><input id="dstartw" type="number" min="0" step="0.1"></div>
         <div><label for="dgoalw">Goal weight <span id="du2">(lb)</span></label><input id="dgoalw" type="number" min="0" step="0.1"></div>
         <div><label for="dgoaldate">Goal date</label><input id="dgoaldate" type="date"></div>
-        <div><label for="dintakemin">Intake range, low</label><input id="dintakemin" type="number" min="0" step="10"></div>
-        <div><label for="dintakemax">Intake range, high</label><input id="dintakemax" type="number" min="0" step="10"></div>
-        <div><label for="dactivetar">Active minutes/day</label><input id="dactivetar" type="number" min="0" step="5"></div>
+        <div><label for="dintake0">Calories you can eat comfortably</label><input id="dintake0" type="number" min="0" step="25" placeholder="1800"></div>
         <div><label for="dprotein">Protein target (g)</label><input id="dprotein" type="number" min="0" step="5"></div>
-        <div><label for="dtargetdef">Daily deficit target</label><input id="dtargetdef" type="number" min="0" step="25"></div>
         <div><label for="dmode">Accuracy mode</label>
           <select id="dmode">
             <option value="basic">Basic &mdash; equation only</option>
@@ -731,6 +735,9 @@ select:focus{outline:2px solid var(--roe);outline-offset:1px}
             <option value="calibrated">Calibrated &mdash; adjust from my trend</option>
           </select></div>
       </div>
+
+      <div id="dsolve"></div>
+
       <button id="dsaveprofile" type="button">Save my numbers</button>
       <button id="dcancelprofile" class="ghost hide" type="button">Cancel</button>
       <div class="msg" id="dprofmsg"></div>
@@ -1854,15 +1861,24 @@ function dUnitLabel(){ return dIsMetric() ? 'kg' : 'lb'; }
 function dPerUnit(){ return dIsMetric() ? KCAL_PER_KG : KCAL_PER_LB; }
 
 /* ---- burn estimate, broken into visible parts ---- */
-function dBMR(weightUnits){
-  if(!dProfile) return 0;
-  var kg = dToKg(weightUnits || dProfile.startWeight || 0);
-  var cm = dProfile.heightCm || 0, age = dProfile.age || 0;
+/* Takes an explicit profile so the setup form can price a profile that hasn't
+   been saved yet; falls back to the live one. */
+function dBMR(weightUnits, p){
+  p = p || dProfile;
+  if(!p) return 0;
+  var w = weightUnits || p.startWeight || 0;
+  var kg = (p.unit === 'metric') ? w : w * 0.45359237;
+  var cm = p.heightCm || 0, age = p.age || 0;
   var base = 10 * kg + 6.25 * cm - 5 * age;
-  return Math.round(dProfile.sex === 'male' ? base + 5 : base - 161);
+  return Math.round(p.sex === 'male' ? base + 5 : base - 161);
 }
+/* The activity level the plan and burn estimates assume. Uses the solved
+   target when there's no stated one, so the projection reflects the activity
+   the goal actually requires rather than defaulting to sedentary.
+   dSolve() computes its own baseline and never calls this, so there's no loop. */
 function dActivityMult(){
   var t = dProfile ? (dProfile.activityTargetMin || 0) : 0;
+  if(!t) t = dActivityTarget() || 0;
   if(t >= 90) return 1.55;
   if(t >= 45) return 1.375;
   if(t >= 20) return 1.2;
@@ -1903,11 +1919,12 @@ function dLatestWeight(){
 function dGoals(e){
   if(!e || !dProfile) return {fuel:false, move:false};
   var intake = dNum(e.intake);
+  var range = dIntakeRange();
   /* Under the range does not count. Eating too little is not the goal. */
-  var fuel = intake !== null && dProfile.intakeMin && dProfile.intakeMax &&
-             intake >= dProfile.intakeMin && intake <= dProfile.intakeMax;
+  var fuel = intake !== null && range && intake >= range.min && intake <= range.max;
   var active = dNum(e.activeMinutes);
-  var move = active !== null && dProfile.activityTargetMin && active >= dProfile.activityTargetMin;
+  var actTarget = dActivityTarget();
+  var move = active !== null && actTarget && active >= actTarget;
   return {fuel:!!fuel, move:!!move};
 }
 
@@ -1932,7 +1949,7 @@ function dTier(isoDate){
   if(bal === null) return 'neutral';
   if(bal <= -250) return 'surplus';
   if(bal < 250) return 'neutral';
-  var target = (dProfile && dProfile.targetDeficit) || 500;
+  var target = dTargetDeficit();
   var pct = bal / target;
   if(pct < 0.5) return 't1';
   if(pct < 1) return 't2';
@@ -1995,15 +2012,104 @@ function dBuildPlan(){
   return plan;
 }
 
+/* ---- the solver ----
+   Goal weight + goal date + an intake you can live with → the deficit and the
+   activity needed to get there. Everything else in the section derives from
+   this, so there is one place that decides what the targets are.
+
+   Averages over the whole span rather than using the start weight, because
+   resting metabolism falls as you get lighter: sizing activity off day one
+   would leave you short by the end. */
+function dSolve(p){
+  p = p || dProfile;
+  if(!p || !p.startWeight || !p.goalWeight || !p.goalDate) return null;
+
+  var days = Math.round((dDate(p.goalDate) - dDate(iso(new Date()))) / 864e5);
+  if(days <= 0) return null;
+
+  var toLose = p.startWeight - p.goalWeight;
+  var perUnit = (p.unit === 'metric') ? KCAL_PER_KG : KCAL_PER_LB;
+  var dailyDeficit = (toLose * perUnit) / days;
+
+  /* Mean weight across the span, so the burn requirement reflects the whole
+     journey rather than the heaviest day of it. */
+  var midWeight = (p.startWeight + p.goalWeight) / 2;
+  var bmr = dBMR(midWeight, p);
+  var bmrNow = dBMR(p.startWeight, p);
+
+  var intake = dHas(p.plannedIntake) ? dNum(p.plannedIntake) : null;
+  if(intake === null) return null;
+
+  var burnNeeded = intake + dailyDeficit;
+  /* Even a still day costs about a quarter above resting: digesting food,
+     standing up, moving around the house. Sedentary is 1.2x maintenance, and
+     the 0.2 is this. */
+  var baseline = bmr * 0.22;
+  var fromActivity = burnNeeded - bmr - baseline;
+
+  /* Brisk walking runs about 5 kcal/min at this kind of body weight, and roughly
+     110 steps a minute. Both are estimates, and both flatter a heavier body. */
+  var perMinute = 5;
+  var activeMinutes = fromActivity > 0 ? Math.round(fromActivity / perMinute) : 0;
+  var steps = activeMinutes * 110;
+
+  return {
+    days: days,
+    toLose: toLose,
+    dailyDeficit: Math.round(dailyDeficit),
+    weeklyRate: toLose / (days / 7),
+    intake: Math.round(intake),
+    bmr: Math.round(bmr),
+    bmrNow: Math.round(bmrNow),
+    baseline: Math.round(baseline),
+    burnNeeded: Math.round(burnNeeded),
+    fromActivity: Math.round(fromActivity),
+    activeMinutes: activeMinutes,
+    steps: steps,
+    /* Below resting metabolism is never a target we hand out. */
+    belowBMR: intake < bmrNow,
+    /* Past roughly two hours a day of deliberate activity this stops being a
+       plan and starts being a second job. */
+    activityUnrealistic: activeMinutes > 120
+  };
+}
+
+/* The intake band. Solved, not asked for — a window around the planned number,
+   because nobody lands on an exact calorie count and a target you can never hit
+   is a target that never ticks. */
+var INTAKE_BAND = 150;
+function dIntakeRange(p){
+  p = p || dProfile;
+  if(!p) return null;
+  if(dHas(p.intakeMin) && dHas(p.intakeMax)) return {min:p.intakeMin, max:p.intakeMax};
+  var s = dSolve(p);
+  if(!s) return null;
+  return {min: s.intake - INTAKE_BAND, max: s.intake + INTAKE_BAND};
+}
+
+/* The activity target. Solved unless overridden. */
+function dActivityTarget(p){
+  p = p || dProfile;
+  if(!p) return null;
+  if(dHas(p.activityTargetMin)) return dNum(p.activityTargetMin);
+  var s = dSolve(p);
+  return s ? s.activeMinutes : null;
+}
+
+/* The deficit target that tiers the grid. Derived from the goal, never typed. */
+function dTargetDeficit(p){
+  p = p || dProfile;
+  var s = dSolve(p);
+  return s ? Math.max(s.dailyDeficit, 1) : 500;
+}
+
 /* What the plan assumes you eat. Their own stated range midpoint, unless they
    set an explicit planned intake in the forecast. */
 function dPlannedIntake(){
   if(!dProfile) return null;
   if(dHas(dProfile.plannedIntake)) return dNum(dProfile.plannedIntake);
-  if(dProfile.intakeMin && dProfile.intakeMax) return (dProfile.intakeMin + dProfile.intakeMax) / 2;
-  if(dProfile.targetDeficit && dProfile.startWeight){
-    return Math.round(dBMR(dProfile.startWeight) * dActivityMult() - dProfile.targetDeficit);
-  }
+  var r = dIntakeRange();
+  if(r) return (r.min + r.max) / 2;
   return null;
 }
 
@@ -2102,11 +2208,8 @@ function dReadProfileForm(){
     startWeight: dNum($('dstartw').value),
     goalWeight: dNum($('dgoalw').value),
     goalDate: $('dgoaldate').value || '',
-    intakeMin: dNum($('dintakemin').value),
-    intakeMax: dNum($('dintakemax').value),
-    activityTargetMin: dNum($('dactivetar').value),
+    plannedIntake: dNum($('dintake0').value),
     proteinTarget: dNum($('dprotein').value),
-    targetDeficit: dNum($('dtargetdef').value),
     mode: $('dmode').value
   };
 }
@@ -2119,11 +2222,8 @@ function dFillProfileForm(){
   if(dHas(dProfile.startWeight)) $('dstartw').value = dProfile.startWeight;
   if(dHas(dProfile.goalWeight)) $('dgoalw').value = dProfile.goalWeight;
   $('dgoaldate').value = dProfile.goalDate || '';
-  if(dHas(dProfile.intakeMin)) $('dintakemin').value = dProfile.intakeMin;
-  if(dHas(dProfile.intakeMax)) $('dintakemax').value = dProfile.intakeMax;
-  if(dHas(dProfile.activityTargetMin)) $('dactivetar').value = dProfile.activityTargetMin;
+  if(dHas(dProfile.plannedIntake)) $('dintake0').value = dProfile.plannedIntake;
   if(dHas(dProfile.proteinTarget)) $('dprotein').value = dProfile.proteinTarget;
-  if(dHas(dProfile.targetDeficit)) $('dtargetdef').value = dProfile.targetDeficit;
   $('dmode').value = dProfile.mode || 'basic';
   dUnitLabels();
 }
@@ -2132,6 +2232,71 @@ function dUnitLabels(){
   $('du1').textContent = u;
   $('du2').textContent = u;
 }
+/* Live readout under the setup form: what the goal actually demands. */
+function dDrawSolve(){
+  var host = $('dsolve');
+  if(!host) return;
+  var p = dReadProfileForm();
+  var s = dSolve(p);
+
+  if(!s){
+    host.innerHTML = '<p class="note" style="margin:.4rem 0 0">' +
+      'Fill in your weight, goal weight, goal date, and what you can eat &mdash; the deficit ' +
+      'and the activity needed get worked out from those.</p>';
+    return;
+  }
+
+  var u = (p.unit === 'metric') ? 'kg' : 'lb';
+  var html = '<div class="dsolved">';
+
+  if(s.belowBMR){
+    html += '<div class="dwarn"><b>That intake is below your resting metabolism.</b>' +
+      '<p class="note" style="margin:0">Eating ' + s.intake.toLocaleString() + ' is under the ' +
+      s.bmrNow.toLocaleString() + ' your body uses at rest. Put your comfortable intake at or above ' +
+      'that and let the date move instead.</p></div>';
+  } else if(s.toLose <= 0){
+    html += '<p class="note" style="margin:.4rem 0 0">Your goal weight is at or above where you are now, ' +
+      'so there is no deficit to run. The section still tracks intake, movement, and weight.</p>';
+  } else {
+    html += '<ul class="dbreak">' +
+      '<li><span>To lose</span><b>' + s.toLose.toFixed(1) + ' ' + u + ' in ' + s.days + ' days</b></li>' +
+      '<li><span>That is</span><b>' + s.weeklyRate.toFixed(2) + ' ' + u + ' a week</b></li>' +
+      '<li><span>Daily deficit needed</span><b>' + s.dailyDeficit.toLocaleString() + '</b></li>' +
+      '<li><span>Eating</span><b>' + s.intake.toLocaleString() + '</b></li>' +
+      '<li class="tot"><span>So you need to burn</span><b>' + s.burnNeeded.toLocaleString() + ' /day</b></li>' +
+      '</ul>' +
+      '<ul class="dbreak" style="margin-top:.9rem">' +
+      '<li><span>Resting metabolism</span><b>' + s.bmr.toLocaleString() + '</b></li>' +
+      '<li><span>Baseline living</span><b>' + s.baseline.toLocaleString() + '</b></li>' +
+      '<li class="tot"><span>Still to find from activity</span><b>' +
+        (s.fromActivity > 0 ? s.fromActivity.toLocaleString() : '0') + '</b></li>' +
+      '</ul>';
+
+    if(s.fromActivity > 0){
+      html += '<p class="dsolvenote">Roughly <b>' + s.activeMinutes + ' active minutes a day</b>, ' +
+        'or about <b>' + s.steps.toLocaleString() + ' steps</b>. Estimates &mdash; a heavier body ' +
+        'burns more per step, so this eases as you go.</p>';
+    } else {
+      html += '<p class="dsolvenote">Your resting burn alone covers this deficit. ' +
+        'Movement is still worth doing, but the maths does not demand it.</p>';
+    }
+
+    if(s.activityUnrealistic){
+      html += '<div class="dwarn"><b>That is a lot of activity to sustain.</b>' +
+        '<p class="note" style="margin:0">' + s.activeMinutes + ' minutes a day, every day, is more than ' +
+        'most people keep up for a year. Either move the goal date out or raise what you eat &mdash; ' +
+        'a plan you can actually follow beats a faster one you cannot.</p></div>';
+    }
+
+    html += '<p class="dsolvenote" style="opacity:.8">Your intake band works out as <b>' +
+      (s.intake - INTAKE_BAND).toLocaleString() + '&ndash;' + (s.intake + INTAKE_BAND).toLocaleString() +
+      '</b>. A day inside it counts as fuelled.</p>';
+  }
+
+  html += '</div>';
+  host.innerHTML = html;
+}
+
 function dModeNote(){
   var m = $('dmode').value, t = '';
   if(m === 'connected'){
@@ -2155,9 +2320,14 @@ function dSaveProfile(){
     m.textContent = 'Age, height, and current weight are needed to estimate anything.';
     return;
   }
-  if(p.intakeMin && p.intakeMax && p.intakeMin > p.intakeMax){
+  if(!p.goalWeight || !p.goalDate){
     m.className = 'msg err';
-    m.textContent = 'The low end of your intake range is above the high end.';
+    m.textContent = 'A goal weight and a goal date are what everything else is worked out from.';
+    return;
+  }
+  if(!dHas(p.plannedIntake)){
+    m.className = 'msg err';
+    m.textContent = 'Add the calories you can eat comfortably — the activity needed is solved from it.';
     return;
   }
   dProfile = p;
@@ -2424,7 +2594,7 @@ function dDrawSummary(){
     '<div><div class="k">Est. burn today</div><div class="v tnum">' + parts.total.toLocaleString() + '<span> est.</span></div></div>' +
     '<div><div class="k">Today\'s balance</div><div class="v tnum">' + (bal === null ? '&mdash;' : Math.round(bal).toLocaleString()) + '</div></div>' +
     '<div><div class="k">Latest weight</div><div class="v tnum">' + (nowW === null ? '&mdash;' : nowW + ' ') + '<span>' + (nowW === null ? '' : u) + '</span></div></div>' +
-    '<div><div class="k">Deficit target</div><div class="v tnum">' + ((dProfile.targetDeficit || 0).toLocaleString()) + '<span> /day</span></div></div>';
+    '<div><div class="k">Deficit needed</div><div class="v tnum">' + dTargetDeficit().toLocaleString() + '<span> /day</span></div></div>';
 
   $('drunsub').textContent = calLine || 'All burn figures are estimates.';
   dDrawPlanStrip();
@@ -2631,8 +2801,17 @@ function deficitBoot(){
   dLoadAllMonths();
 
   $('dsaveprofile').onclick = dSaveProfile;
-  $('dunit').onchange = dUnitLabels;
+  $('dunit').onchange = function(){ dUnitLabels(); dDrawSolve(); };
   $('dmode').onchange = dModeNote;
+
+  /* The solve panel updates as you type, so the cost of a goal date is visible
+     while you're choosing it rather than after you commit. */
+  ['dage','dheight','dstartw','dgoalw','dgoaldate','dintake0','dsex'].forEach(function(id){
+    var el = $(id);
+    if(!el) return;
+    el.oninput = dDrawSolve;
+    el.onchange = dDrawSolve;
+  });
   $('dforecast').onclick = dRunForecast;
   $('dexport').onclick = dExport;
   $('dimport').onclick = dImport;
@@ -2650,6 +2829,7 @@ function deficitBoot(){
 
   dModeNote();
   if(dProfile) dFillProfileForm();
+  dDrawSolve();
   dRecalibrate();
   dRender();
 }
