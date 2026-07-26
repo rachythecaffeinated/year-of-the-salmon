@@ -16,7 +16,9 @@ var ENTRY_SHEET  = 'entries';
 var GOAL_SHEET   = 'goals';
 var PEOPLE_SHEET = 'people';
 
-var ENTRY_HEADERS  = ['key', 'who', 'date', 'steps', 'hang', 'pull', 'lift', 'text', 'updated'];
+/* `hiit` is appended after `text` so the columns existing rows already occupy
+   keep their positions. Rows written before it existed read back as 0. */
+var ENTRY_HEADERS  = ['key', 'who', 'date', 'steps', 'hang', 'pull', 'lift', 'text', 'updated', 'hiit'];
 var GOAL_HEADERS   = ['who', 'goals', 'updated'];
 var PEOPLE_HEADERS = ['who', 'why', 'joined', 'updated'];
 
@@ -92,7 +94,8 @@ function readEntries() {
       hang:  Number(r.hang) || 0,
       pull:  Number(r.pull) || 0,
       lift:  r.lift === true || r.lift === 'TRUE' || r.lift === 'true',
-      text:  String(r.text || '')
+      text:  String(r.text || ''),
+      hiit:  Number(r.hiit) || 0
     };
   }).filter(function (r) { return r.who && r.date; });
 }
@@ -150,7 +153,8 @@ function handleSaveEntry(params) {
       Number(params.pull) || 0,
       params.lift === 'true' || params.lift === true,
       trimmed(params.text),
-      new Date()
+      new Date(),
+      Number(params.hiit) || 0
     ];
 
     var existing = findRowByKey(sheet, key);
@@ -247,6 +251,21 @@ function sheetFor(name, headers) {
     sheet = ss.insertSheet(name);
     sheet.appendRow(headers);
     sheet.setFrozenRows(1);
+    return sheet;
+  }
+
+  /* The sheet predates this version of the script. readAll() maps rows by
+     header name, so a column added to ENTRY_HEADERS after the sheet was
+     created would read back undefined forever unless we add it here.
+     Only ever appends to the right — never reorders or removes, so existing
+     columns keep their positions and existing rows are untouched. */
+  var lastCol = sheet.getLastColumn();
+  if (lastCol > 0) {
+    var existing = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+    var missing = headers.filter(function (h) { return existing.indexOf(h) === -1; });
+    if (missing.length) {
+      sheet.getRange(1, lastCol + 1, 1, missing.length).setValues([missing]);
+    }
   }
   return sheet;
 }

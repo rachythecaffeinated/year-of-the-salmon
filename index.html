@@ -691,6 +691,7 @@ select:focus{outline:2px solid var(--roe);outline-offset:1px}
       <div><label for="steps">Steps</label><input id="steps" type="number" min="0" step="100" placeholder="7500"></div>
       <div><label for="hang">Dead hang (seconds)</label><input id="hang" type="number" min="0" step="1" placeholder="35"></div>
       <div><label for="pull">Strict pull-ups</label><input id="pull" type="number" min="0" step="1" placeholder="0"></div>
+      <div><label for="hiit">HIIT minutes</label><input id="hiit" type="number" min="0" step="5" placeholder="25"></div>
       <div class="check"><input id="lift" type="checkbox"><label for="lift">Lifted today</label></div>
       <div class="full">
         <label for="text">Note &mdash; how it felt, what you hit, what hurt</label>
@@ -1504,6 +1505,7 @@ function pickDay(key){
   $('steps').value  = e ? (e.steps||'') : '';
   $('hang').value   = e ? (e.hang||'')  : '';
   $('pull').value   = e ? (e.pull||'')  : '';
+  $('hiit').value   = e ? (e.hiit||'')  : '';
   $('lift').checked = e ? !!e.lift : false;
   $('text').value   = e ? (e.text||'')  : '';
   drawTarget();
@@ -1638,6 +1640,7 @@ function drawLog(){
     var bits = ['<b class="'+(st>=tar?'over':'under')+'">'+st.toLocaleString()+'</b> / '+tar.toLocaleString()+' steps'];
     if(+e.hang) bits.push('<b>'+(+e.hang)+'s</b> hang');
     if(+e.pull) bits.push('<b>'+(+e.pull)+'</b> pull-ups');
+    if(+e.hiit) bits.push('<b>'+(+e.hiit)+'m</b> HIIT');
     if(e.lift) bits.push('<b>lifted</b>');
     var marks = MARKS[e.date] || [];
     var mtag = marks.length ? ' <span style="color:'+marks[0].color+'">&middot; '+esc(marks[0].t)+'</span>' : '';
@@ -1665,6 +1668,7 @@ $('save').onclick = async function(){
     hang: $('hang').value || 0,
     pull: $('pull').value || 0,
     lift: $('lift').checked ? 'true' : 'false',
+    hiit: $('hiit').value || 0,
     text: $('text').value.trim()
   };
 
